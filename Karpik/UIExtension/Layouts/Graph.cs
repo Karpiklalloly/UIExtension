@@ -108,27 +108,6 @@ namespace Karpik.UIExtension
             
         }
         
-        private void SetButtons()
-        {
-            _menu.AddButton("Edit mode", () =>
-            {
-                EnableContextMenu = !EnableContextMenu;
-                foreach (var dragManipulator in DragManipulators)
-                {
-                    dragManipulator.Enabled = EnableContextMenu;
-                }
-
-                foreach (var element in Nodes.Select(x => x as BetterVisualElement))
-                {
-                    element.EnableContextMenu = !EnableContextMenu;
-                }
-
-                _elementsChooserManipulator.Enabled = EnableContextMenu;
-            }, true);
-            
-            AddButtons(_menu);
-        }
-        
         protected virtual void AddLink(TwoElementsChooserManipulatorEvent e)
         {
             var from = e.FirstElement as IGraphNode;
@@ -144,6 +123,29 @@ namespace Karpik.UIExtension
                 return;
             }
             Remove(line);
+        }
+
+        protected virtual void EditClicked()
+        {
+            EnableContextMenu = !EnableContextMenu;
+            foreach (var dragManipulator in DragManipulators)
+            {
+                dragManipulator.Enabled = EnableContextMenu;
+            }
+
+            foreach (var element in Nodes.Select(x => x as BetterVisualElement))
+            {
+                element.EnableContextMenu = !EnableContextMenu;
+            }
+
+            _elementsChooserManipulator.Enabled = EnableContextMenu;
+        }
+        
+        private void SetButtons()
+        {
+            _menu.AddButton("Edit mode", EditClicked, true);
+            
+            AddButtons(_menu);
         }
     }
 }
