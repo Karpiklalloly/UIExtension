@@ -1,0 +1,10 @@
+.col{
+    flex: 1;
+    flex-basis: 25%;
+}
+.x-bar-item{
+    color: black;
+    background-color: darkgray;
+    border-color: black;
+    border-width: 1px;
+}

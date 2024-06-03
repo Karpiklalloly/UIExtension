@@ -1,0 +1,39 @@
+.grid {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.horizontal-container{
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.x-bar{
+    display: flex;
+    position: absolute;
+    
+    border-color: black;
+    border-radius: 2px;
+    
+    flex: 1;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.float-window{
+    margin: 0;
+    position: absolute;
+}

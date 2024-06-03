@@ -1,0 +1,14 @@
+{
+    "name": "Karpik.UIExtension",
+    "rootNamespace": "Karpik.UIExtension",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

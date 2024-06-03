@@ -1,0 +1,15 @@
+{
+    "name": "com.Karpik.UIExtension",
+    "version": "0.5.0",
+    "displayName": "UIExtension",
+    "description": "Add features to Unity UI Toolkit",
+    "unity": "2023.2",
+    "dependencies": {
+      "com.[company-name].some-package": "1.0.0",
+      "com.[company-name].other-package": "2.0.0"
+   },
+    "author": {
+      "name": "Karpik",
+      "url": "https://github.com/Karpiklalloly"
+    }
+  }
