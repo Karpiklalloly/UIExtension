@@ -133,11 +133,6 @@ namespace Karpik.UIExtension
                 dragManipulator.Enabled = EnableContextMenu;
             }
 
-            foreach (var element in Nodes.Select(x => x as BetterVisualElement))
-            {
-                element.EnableContextMenu = !EnableContextMenu;
-            }
-
             _elementsChooserManipulator.Enabled = EnableContextMenu;
         }
         
