@@ -51,12 +51,25 @@ namespace Karpik.UIExtension
                 parent = contentContainer;
             }
 
-            if (parent is BetterVisualElement betterParent)
+            if (parent == this)
             {
-                betterParent.Sort();
+                Sort();
+            }
+            OnChildAdded(element);
+            ChildAdded?.Invoke(element);
+
+            
+            if (contentContainer is BetterVisualElement betterParent)
+            {
+                if (contentContainer == parent)
+                {
+                    betterParent.Sort();
+                }
+                
                 betterParent.OnChildAdded(element);
                 betterParent.ChildAdded?.Invoke(element);
             }
+            
 
             if (element is BetterVisualElement better)
             {
