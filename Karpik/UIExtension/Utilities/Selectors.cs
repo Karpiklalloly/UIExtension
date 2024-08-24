@@ -7,6 +7,7 @@ namespace Karpik.UIExtension
     {
         public static string Grid => "grid";
         public static string HorizontalContainer => "horizontal-container";
+        public static string VerticalContainer => "vertical-container";
         public static string XBar => "x-bar";
         public static string FloatWindow => "float-window";
 
@@ -94,6 +95,25 @@ namespace Karpik.UIExtension
             element.styleSheets.Add(StyleSheets.ContainerItems);
             element.AddToClassList(ContainerElement);
         }
+        
+        public static void ToContainer(this VisualElement element, Direction direction = Direction.Horizontal)
+        {
+            element.styleSheets.Add(StyleSheets.Containers);
+            switch (direction)
+            {
+                case Direction.Horizontal:
+                    element.AddToClassList(HorizontalContainer);
+                    break;
+                case Direction.Vertical:
+                    element.AddToClassList(VerticalContainer);
+                    break;
+            }
+        }
+        
+        public static void FlexSize(this VisualElement element, StyleLength length)
+        {
+            element.style.flexBasis = length;
+        }
 
         public enum Side
         {
@@ -101,7 +121,6 @@ namespace Karpik.UIExtension
             Bottom,
             Right,
             Left
-            
         }
 
         public enum CenterPosition
@@ -109,6 +128,12 @@ namespace Karpik.UIExtension
             Horizontal,
             Vertical,
             Both
+        }
+        
+        public enum Direction
+        {
+            Horizontal,
+            Vertical
         }
     }
 }

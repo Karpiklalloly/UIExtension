@@ -1,3 +1,4 @@
+using System;
 using Unity.Properties;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -35,6 +36,7 @@ namespace Karpik.UIExtension
             string uiValue,
             TypeConverter<UI, Source> converter1,
             TypeConverter<Source, UI> converter2,
+            BindingMode bindingMode,
             bool native = true)
             where UI : class
             where Source : class
@@ -44,7 +46,7 @@ namespace Karpik.UIExtension
                 var binding = new DataBinding()
                 {
                     dataSourcePath = PropertyPath.FromName(bindingPath),
-                    bindingMode = BindingMode.TwoWay
+                    bindingMode = bindingMode
                 };
             
                 binding.sourceToUiConverters.AddConverter(converter1);
@@ -53,6 +55,8 @@ namespace Karpik.UIExtension
                 element.SetBinding(uiValue, binding);
                 return;
             }
+
+            throw new NotImplementedException("Non native binding is not supported. Use native instead.");
 
             element.RegisterCallback<ChangeEvent<UI>>(e =>
             {
