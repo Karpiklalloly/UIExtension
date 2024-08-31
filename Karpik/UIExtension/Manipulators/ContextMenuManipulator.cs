@@ -7,6 +7,8 @@ namespace Karpik.UIExtension
 {
     public class ContextMenuManipulator : PointerManipulator
     {
+        private static bool _showed = false;
+        
         public IEnumerable<string> Paths => _elements.Keys;
         public bool Enabled { get; set; } = false;
         
@@ -31,7 +33,11 @@ namespace Karpik.UIExtension
 
         public void Add(string path, Action<ContextMenuManipulatorEvent> onPick)
         {
-            _elements.Add(path, onPick);
+            _elements.Add(path, (e) =>
+            {
+                onPick(e);
+                _showed = false;
+            });
         }
 
         public void Remove(string path)
@@ -53,6 +59,7 @@ namespace Karpik.UIExtension
         {
             if (!Enabled) return;
             if (!CanStartManipulation(e)) return;
+            if (_showed) return;
             DoDisplayMenu(e);
         }
 
@@ -70,12 +77,9 @@ namespace Karpik.UIExtension
                 menu.AddItem(pair.Key, false, () => pair.Value?.Invoke(_event));
             }
             
-            menu.DropDown(new Rect(pos, new Vector2(200, 300)), target, false);
-        }
-
-        private void Clear(ContextualMenuPopulateEvent e)
-        {
-            e.menu.ClearItems();
+            menu.DropDown(new Rect(pos, new Vector2(200, 300)), target, true);
+            menu.contentContainer.RegisterCallbackOnce<DetachFromPanelEvent>((e) => _showed = false);
+            _showed = true;
         }
     }
 
