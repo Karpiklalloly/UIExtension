@@ -1,6 +1,6 @@
 {
     "name": "com.karpik.uiextension",
-    "version": "0.5.4",
+    "version": "0.5.5",
     "displayName": "UIExtension",
     "description": "Add features to Unity UI Toolkit",
     "unity": "2023.2",
