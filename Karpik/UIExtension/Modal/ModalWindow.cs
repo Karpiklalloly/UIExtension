@@ -5,25 +5,16 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class ModalWindow : BetterVisualElement
+    public partial class ModalWindow : BetterVisualElement, IModalWindow
     {
+        public event Action Opened;
         public event Action Closed;
-        public override VisualElement contentContainer => _body;
-
-        public override bool canGrabFocus => true;
 
         [UxmlAttribute]
         public Color BackgroundColor
         {
             get => _background.style.backgroundColor.value;
             set => _background.style.backgroundColor = value;
-        }
-
-        [UxmlAttribute]
-        public Color WindowHeadColor
-        {
-            get => _head.style.backgroundColor.value;
-            set => _head.style.backgroundColor = value;
         }
         
         [UxmlAttribute]
@@ -34,7 +25,7 @@ namespace Karpik.UIExtension
         }
         
         [UxmlAttribute]
-        public Color ContentColor
+        public Color BodyColor
         {
             get => _body.style.backgroundColor.value;
             set => _body.style.backgroundColor = value;
@@ -46,6 +37,24 @@ namespace Karpik.UIExtension
             get => _head.Q<Label>().text;
             set => _head.Q<Label>().text = value;
         }
+
+        [UxmlAttribute]
+        public Color TitleTextColor
+        {
+            get => _head.Q<Label>().style.color.value;
+            set => _head.Q<Label>().style.color = value;
+        }
+        
+        [UxmlAttribute]
+        public Color TitleColor
+        {
+            get => _head.Q<Label>().style.backgroundColor.value;
+            set => _head.Q<Label>().style.backgroundColor = value;
+        }
+        
+        public override VisualElement contentContainer => _body;
+
+        public override bool canGrabFocus => true;
 
         private VisualElement _background;
         private VisualElement _window;
@@ -114,15 +123,8 @@ namespace Karpik.UIExtension
             _window.style.minHeight = new StyleLength(new Length(450, LengthUnit.Pixel));
             _window.style.minWidth = new StyleLength(new Length(300, LengthUnit.Pixel));
             
-            _window.RegisterCallback<KeyDownEvent>(e =>
-            {
-                if (e.keyCode == KeyCode.Escape) Close();
-            });
-            
             InitHead();
             InitContent();
-            
-            
         }
 
         private void InitHead()
@@ -146,10 +148,6 @@ namespace Karpik.UIExtension
             
             _head.Add(label);
             _head.Add(closeButton);
-            _head.RegisterCallback<KeyDownEvent>(e =>
-            {
-                if (e.keyCode == KeyCode.Escape) Close();
-            });
             _window.Add(_head);
         }
 
@@ -161,10 +159,6 @@ namespace Karpik.UIExtension
             _body.contentContainer.StretchToParentSize();
             
             _body.style.paddingTop = new StyleLength(new Length(10, LengthUnit.Pixel));
-            _body.RegisterCallback<KeyDownEvent>(e =>
-            {
-                if (e.keyCode == KeyCode.Escape) Close();
-            });
             _window.Add(_body);
         }
     }

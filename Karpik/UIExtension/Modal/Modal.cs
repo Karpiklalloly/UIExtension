@@ -9,7 +9,7 @@ namespace Karpik.UIExtension
     {
         private static Stack<VisualElement> _contexts = new();
 
-        public static void AddContext(VisualElement element)
+        public static void PushContext(VisualElement element)
         {
             _contexts.Push(element);
         }
@@ -19,43 +19,34 @@ namespace Karpik.UIExtension
             _contexts.Pop();
         }
         
-        public static ModalPart<T> Start<T>(VisualElement overElement, string title = "My title") where T : ModalWindow, new()
+        public static ModalPart<T> Start<T>(string title = "My title") where T : VisualElement, IModalWindow, new()
+        {
+            return Start<T>(_contexts.Peek(), title);
+        }
+        
+        public static ModalPart<T> Start<T>(VisualElement overElement, string title = "My title") where T : VisualElement, IModalWindow, new()
         {
             return new ModalPart<T>(overElement, title);
         }
-        
-        public static ModalPart<T> Start<T>(string title = "My title") where T : ModalWindow, new()
-        {
-            return new ModalPart<T>(_contexts.Peek(), title);
-        }
 
-        public class ModalPart<T> where T : ModalWindow, new()
+        public class ModalPart<T> where T : VisualElement, IModalWindow,  new()
         {
             private readonly T _window;
             
             private VisualElement _parent;
-            private string _title;
             
             public ModalPart(VisualElement element, string title)
             {
                 _parent = element.parent;
-                _title = title;
                 
                 _window = new T();
-                _window.Title = _title;
+                _window.Title = title;
                 _window.Closed += () => _parent.hierarchy.Remove(_window);
-                _window.Closed += () => Debug.Log("Closed");
-            }
-
-            public ModalPart<T> BackColor(Color color)
-            {
-                _window.BackgroundColor = color;
-                return this;
             }
             
-            public ModalPart<T> HeadColor(Color color)
+            public ModalPart<T> TitleColor(Color color)
             {
-                _window.WindowHeadColor = color;
+                _window.TitleColor = color;
                 return this;
             }
             
@@ -65,9 +56,15 @@ namespace Karpik.UIExtension
                 return this;
             }
             
-            public ModalPart<T> ContentBackColor(Color color)
+            public ModalPart<T> BodyColor(Color color)
             {
-                _window.ContentColor = color;
+                _window.BodyColor = color;
+                return this;
+            }
+
+            public ModalPart<T> OnShow(Action action)
+            {
+                _window.Opened += action;
                 return this;
             }
 
