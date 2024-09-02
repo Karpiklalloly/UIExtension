@@ -56,6 +56,7 @@ namespace Karpik.UIExtension
                 _window = new T();
                 _window.Title = title;
                 _window.Closed += () => _parent.hierarchy.Remove(_window);
+                _window.Closed += TryRemoveBackground;
             }
             
             public ModalPart<T> TitleColor(Color color)
@@ -97,8 +98,17 @@ namespace Karpik.UIExtension
             public T Show()
             {
                 _windows.Push(_window);
+                if (_background.parent == null)
+                {
+                    _parent.hierarchy.Add(_background);
+                }
                 _parent.hierarchy.Add(_window);
                 return _window;
+            }
+
+            private void TryRemoveBackground()
+            {
+                if (_windows.Count == 0) _background.hierarchy.parent.Remove(_background);
             }
         }
     }
