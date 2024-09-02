@@ -11,13 +11,6 @@ namespace Karpik.UIExtension
         public event Action Closed;
 
         [UxmlAttribute]
-        public Color BackgroundColor
-        {
-            get => _background.style.backgroundColor.value;
-            set => _background.style.backgroundColor = value;
-        }
-        
-        [UxmlAttribute]
         public Color WindowColor
         {
             get => _window.style.backgroundColor.value;
@@ -55,8 +48,7 @@ namespace Karpik.UIExtension
         public override VisualElement contentContainer => _body;
 
         public override bool canGrabFocus => true;
-
-        private VisualElement _background;
+        
         private VisualElement _window;
         private VisualElement _head;
         private VisualElement _body;
@@ -69,10 +61,8 @@ namespace Karpik.UIExtension
         protected override void InitContentContainer()
         {
             base.InitContentContainer();
-            InitBack();
             InitWindow();
             
-            hierarchy.Add(_background);
             hierarchy.Add(_window);
         }
 
@@ -98,18 +88,9 @@ namespace Karpik.UIExtension
             
             style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
             
-            _background = null;
             _window = null;
             _head = null;
             _body = null;
-        }
-
-        private void InitBack()
-        {
-            _background = new VisualElement();
-            _background.style.backgroundColor = new Color(0, 0, 0, 0.3f);
-            _background.StretchToParentSize();
-            _background.RegisterCallback<MouseDownEvent>(e => Close());
         }
 
         private void InitWindow()

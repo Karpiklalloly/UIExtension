@@ -8,6 +8,20 @@ namespace Karpik.UIExtension
     public static class Modal
     {
         private static Stack<VisualElement> _contexts = new();
+        private static Stack<IModalWindow> _windows = new();
+        private static VisualElement _background = new();
+
+        static Modal()
+        {
+            _background.StretchToParentSize();
+            _background.RegisterCallback<PointerDownEvent>(e => _windows.Pop().Close());
+        }
+        
+        public static Color BackgroundColor
+        {
+            get => _background.style.backgroundColor.value;
+            set => _background.style.backgroundColor = value;
+        }
 
         public static void PushContext(VisualElement element)
         {
@@ -29,7 +43,7 @@ namespace Karpik.UIExtension
             return new ModalPart<T>(overElement, title);
         }
 
-        public class ModalPart<T> where T : VisualElement, IModalWindow,  new()
+        public class ModalPart<T> where T : VisualElement, IModalWindow, new()
         {
             private readonly T _window;
             
@@ -82,6 +96,7 @@ namespace Karpik.UIExtension
 
             public T Show()
             {
+                _windows.Push(_window);
                 _parent.hierarchy.Add(_window);
                 return _window;
             }
