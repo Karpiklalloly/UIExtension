@@ -55,7 +55,7 @@ namespace Karpik.UIExtension
         
         public ModalWindow()
         {
-            this.StretchToParentSize();
+            this.ToCenter();
         }
 
         protected override void InitContentContainer()

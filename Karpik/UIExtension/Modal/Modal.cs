@@ -13,6 +13,7 @@ namespace Karpik.UIExtension
 
         static Modal()
         {
+            _background.name = "Background";
             _background.StretchToParentSize();
             _background.RegisterCallback<PointerDownEvent>(e => _windows.Pop().Close());
         }
