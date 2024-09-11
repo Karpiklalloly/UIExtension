@@ -73,6 +73,7 @@ namespace Karpik.UIExtension
 
         public void Close()
         {
+            if (style.display.value == DisplayStyle.None) return;
             style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
             Closed?.Invoke();
         }

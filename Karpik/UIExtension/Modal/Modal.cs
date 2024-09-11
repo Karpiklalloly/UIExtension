@@ -15,7 +15,7 @@ namespace Karpik.UIExtension
         {
             _background.name = "Background";
             _background.StretchToParentSize();
-            _background.RegisterCallback<PointerDownEvent>(e => _windows.Pop().Close());
+            _background.RegisterCallback<PointerDownEvent>(e => Close());
         }
         
         public static Color BackgroundColor
@@ -56,8 +56,12 @@ namespace Karpik.UIExtension
                 
                 _window = new T();
                 _window.Title = title;
-                _window.Closed += () => _parent.hierarchy.Remove(_window);
-                _window.Closed += TryRemoveBackground;
+                _window.Closed += () =>
+                {
+                    _parent.hierarchy.Remove(_window);
+                    _windows.Pop();
+                    TryRemoveBackground();
+                };
             }
             
             public ModalPart<T> TitleColor(Color color)
@@ -106,11 +110,16 @@ namespace Karpik.UIExtension
                 _parent.hierarchy.Add(_window);
                 return _window;
             }
-
-            private void TryRemoveBackground()
-            {
-                if (_windows.Count == 0) _background.hierarchy.parent.Remove(_background);
-            }
+        }
+        
+        private static void Close()
+        {
+            _windows.Peek().Close();
+        }
+        
+        private static void TryRemoveBackground()
+        {
+            if (_windows.Count == 0) _background.hierarchy.parent.Remove(_background);
         }
     }
 }
