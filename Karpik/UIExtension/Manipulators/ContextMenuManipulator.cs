@@ -15,7 +15,7 @@ namespace Karpik.UIExtension
         private Action<ContextualMenuPopulateEvent> _menuBuilder;
         private ContextMenuManipulatorEvent _event;
         
-        private readonly Dictionary<string, Action<ContextMenuManipulatorEvent>> _elements = new();
+        private readonly Dictionary<string, Data> _elements = new();
 
         public ContextMenuManipulator(Dictionary<string, Action<ContextMenuManipulatorEvent>> elements = null)
         {
@@ -31,12 +31,18 @@ namespace Karpik.UIExtension
             });
         }
 
-        public void Add(string path, Action<ContextMenuManipulatorEvent> onPick)
+        public void Add(string path, Action<ContextMenuManipulatorEvent> onPick, Func<bool> enable = null)
         {
-            _elements.Add(path, (e) =>
+            enable ??= Enable;
+
+            _elements.Add(path, new Data()
             {
-                onPick(e);
-                _showed = false;
+                Event = (e) =>
+                {
+                    onPick(e);
+                    _showed = false;
+                },
+                Enable = enable
             });
         }
 
@@ -74,12 +80,25 @@ namespace Karpik.UIExtension
                     
             foreach (var pair in _elements)
             {
-                menu.AddItem(pair.Key, false, () => pair.Value?.Invoke(_event));
+                var enabled = pair.Value.Enable?.Invoke() ?? false;
+                if (enabled)
+                {
+                    menu.AddItem(pair.Key, false, () => pair.Value.Event?.Invoke(_event));
+                }
+                
             }
             
             menu.DropDown(new Rect(pos, new Vector2(200, 300)), target, true);
             menu.contentContainer.RegisterCallbackOnce<DetachFromPanelEvent>((e) => _showed = false);
             _showed = true;
+        }
+
+        private bool Enable() => true;
+        
+        private struct Data
+        {
+            public Action<ContextMenuManipulatorEvent> Event;
+            public Func<bool> Enable;
         }
     }
 
@@ -97,4 +116,6 @@ namespace Karpik.UIExtension
             Position = position;
         }
     }
+
+    
 }

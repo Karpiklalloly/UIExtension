@@ -9,43 +9,41 @@ namespace Karpik.UIExtension
     [UxmlElement]
     public partial class Graph : Canvas
     {
+        public sealed override VisualElement contentContainer => base.contentContainer;
+
         public IReadOnlyList<IGraphNode> Nodes => _idToNode.Values.ToList();
+        public IReadOnlyList<Line> Lines => _lines;
         
         [SerializeField]
         private Dictionary<string, IGraphNode> _idToNode = new();
         [SerializeField]
+        private List<Line> _lines = new();
+        [SerializeField]
         private TopMenu _menu = new();
-
-        private TwoElementsChooserManipulator _elementsChooserManipulator;
         
         public Graph()
         {
             hierarchy.Add(_menu);
             SetButtons();
-            
-            _elementsChooserManipulator = new TwoElementsChooserManipulator(
-                typeof(IGraphNode),
-                AddLink,
-                null)
-            {
-                Enabled = false
-            };
             EnableContextMenu = false;
-            contentContainer.AddManipulator(_elementsChooserManipulator);
         }
 
-        public void AddNode<T>(T node, Action onClick) where T : BetterVisualElement, IGraphNode
+        public virtual void AddNode<T>(T node) where T : BetterVisualElement, IGraphNode
         {
-            node.EnableContextMenu = !EnableContextMenu;
-            node.AddContextMenu("Open", e =>
-            {
-                onClick?.Invoke();
-            });
-
             _idToNode.Add(node.Id, node);
             node.name = node.GetType().ToString() + _idToNode.Count.ToString();
             
+            var manipulator = new DragManipulator()
+            {
+                Enabled = true
+            };
+            DragManipulators.Add(manipulator);
+            manipulator.DragEnded += e => Save();
+            node.AddManipulator(manipulator);
+            
             Add(node);
+            OnNodeAdded(node);
+            
             foreach (var dragManipulator in DragManipulators)
             {
                 dragManipulator.Enabled = EnableContextMenu;
@@ -58,6 +56,12 @@ namespace Karpik.UIExtension
             if (Nodes.FirstOrDefault(x => x.Id == id) is not VisualElement node) return;
             _idToNode.Remove(id);
             Remove(node);
+            //Save();
+        }
+
+        public virtual void RemoveNode(IGraphNode node)
+        {
+            RemoveNode(node.Id);
         }
         
         public new void Clear()
@@ -68,13 +72,19 @@ namespace Karpik.UIExtension
 
         public Line AddLine<T>(T from, T to) where T : IPositionNotify
         {
+            var children = Children();
+            var visualElements = children as VisualElement[] ?? children.ToArray();
+            if (!visualElements.Contains(from as VisualElement) || !visualElements.Contains(to as VisualElement))
+            {
+                throw new ArgumentException($"From element or To element is not children of Canvas {this}");
+            }
+            
             var line = new Line();
             
             line.SetStart(from, from.Center - from.value);
             line.SetEnd(to, from.Center - from.value);
             line.StartColor = Color.green;
             line.EndColor = Color.red;
-            line.OnClick = RemoveLink;
             
             AddLine(line);
             return line;
@@ -85,16 +95,26 @@ namespace Karpik.UIExtension
             Add(line);
             line.ZIndex = -1;
             line.MarkDirtyRepaint();
+            _lines.Add(line);
+            OnLineAdded(line);
+            //Save();
+        }
+        
+        protected virtual void RemoveLine(Line line)
+        {
+            Remove(line);
+            Save();
         }
 
-        public void AddNodeMenu<T>(string path, Action<T> onCreate, Action<T> onClick) where T : BetterVisualElement, IGraphNode, new()
+        public virtual void AddNodeMenu<T>(string path, Action<T> onCreate, Action<T> onClick) where T : BetterVisualElement, IGraphNode, new()
         {
             AddContextMenu(path, (e) =>
             {
                 var node = new T();
                 node.Position = e.Position + new Vector2(-node.Size.x / 2, node.Size.y / 2) + new Vector2(0, -100);
-                AddNode(node, () => onClick?.Invoke(node));
+                AddNode(node);
                 onCreate?.Invoke(node);
+                Save();
             });
         }
 
@@ -103,26 +123,14 @@ namespace Karpik.UIExtension
             
         }
 
+        public virtual void Load()
+        {
+            
+        }
+
         protected virtual void AddButtons(TopMenu menu)
         {
             
-        }
-        
-        protected virtual void AddLink(TwoElementsChooserManipulatorEvent e)
-        {
-            var from = e.FirstElement as IGraphNode;
-            var to = e.SecondElement as IGraphNode;
-            
-            AddLine(from, to);
-        }
-
-        protected virtual void RemoveLink(Line line)
-        {
-            if (!EnableContextMenu)
-            {
-                return;
-            }
-            Remove(line);
         }
 
         protected virtual void EditClicked()
@@ -132,8 +140,16 @@ namespace Karpik.UIExtension
             {
                 dragManipulator.Enabled = EnableContextMenu;
             }
+        }
 
-            _elementsChooserManipulator.Enabled = EnableContextMenu;
+        protected virtual void OnNodeAdded<T>(T node) where T : BetterVisualElement, IGraphNode
+        {
+            
+        }
+
+        protected virtual void OnLineAdded(Line line)
+        {
+            
         }
         
         private void SetButtons()

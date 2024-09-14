@@ -35,14 +35,21 @@ namespace Karpik.UIExtension
         public override void Add(VisualElement element)
         {
             base.Add(element);
-            
             element.style.position = new StyleEnum<Position>(Position.Absolute);
-            var manipulator = new DragManipulator()
+        }
+
+        public override void Remove(VisualElement element)
+        {
+            base.Remove(element);
+
+            for (var i = 0; i < DragManipulators.Count; i++)
             {
-                Enabled = true
-            };
-            DragManipulators.Add(manipulator);
-            element.AddManipulator(manipulator);
+                var manipulator = DragManipulators[i];
+                if (manipulator.target != element) continue;
+                DragManipulators.Remove(manipulator);
+                element.RemoveManipulator(manipulator);
+                break;
+            }
         }
 
         protected override void OnDispose()
@@ -50,10 +57,10 @@ namespace Karpik.UIExtension
             base.OnDispose();
             
             Root?.Clear();
-            ;
             Root = null;
             foreach (var manipulator in DragManipulators)
             {
+                manipulator.target = null;
                 manipulator.Enabled = false;
             }
             DragManipulators.Clear();

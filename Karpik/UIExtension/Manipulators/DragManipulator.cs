@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,6 +12,7 @@ namespace Karpik.UIExtension
             get => _target;
             set
             {
+                if (value == null) return;
                 if (_target == value) return;
                 if (_target != null)
                 {
@@ -34,6 +36,10 @@ namespace Karpik.UIExtension
         }
 
         public bool Enabled { get; set; } = true;
+        
+        public event Action<VisualElement> DragStarted;
+        public event Action<VisualElement> Dragging; 
+        public event Action<VisualElement> DragEnded;
         
         private static readonly CustomStyleProperty<bool> _draggableEnabledProperty = new("--draggable-enabled");
         private const string _droppableId = "droppable";
@@ -84,6 +90,7 @@ namespace Karpik.UIExtension
             _offset = e.localPosition;
             _startPosition = target.transform.position;
             target.CapturePointer(e.pointerId);
+            DragStarted?.Invoke(target);
         }
 
         private void DragEnd(IPointerEvent e)
@@ -108,6 +115,7 @@ namespace Karpik.UIExtension
             _isDragging = false;
             if (canDrop) Drop(droppable);
             else target.MoveTo(_startPosition);
+            DragEnded?.Invoke(target);
         }
 
         private void Drop(VisualElement element)
@@ -159,6 +167,8 @@ namespace Karpik.UIExtension
                 _lastDroppable?.RemoveFromClassList("droppable--can-drop");
                 _lastDroppable = null;
             }
+            
+            Dragging?.Invoke(target);
         }
     }
 }
