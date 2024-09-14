@@ -32,14 +32,12 @@ namespace Karpik.UIExtension
         }
 
         public static void RegisterBinding<UI, Source>(this VisualElement element,
-            string bindingPath,
-            string uiValue,
-            TypeConverter<UI, Source> converter1,
-            TypeConverter<Source, UI> converter2,
-            BindingMode bindingMode,
-            bool native = true)
-            where UI : class
-            where Source : class
+                string bindingPath,
+                string uiValue,
+                TypeConverter<UI, Source> converter1,
+                TypeConverter<Source, UI> converter2,
+                BindingMode bindingMode = BindingMode.TwoWay,
+                bool native = true)
         {
             if (native)
             {
@@ -48,25 +46,24 @@ namespace Karpik.UIExtension
                     dataSourcePath = PropertyPath.FromName(bindingPath),
                     bindingMode = bindingMode
                 };
-            
-                binding.sourceToUiConverters.AddConverter(converter1);
-                binding.uiToSourceConverters.AddConverter(converter2);
-            
+
+                if (converter2 != null)
+                {
+                    binding.sourceToUiConverters.AddConverter(converter2);
+                }
+
+                if (converter1 != null)
+                {
+                    binding.uiToSourceConverters.AddConverter(converter1);
+                }
+                
                 element.SetBinding(uiValue, binding);
                 return;
             }
-
+            
             throw new NotImplementedException("Non native binding is not supported. Use native instead.");
-
-            element.RegisterCallback<ChangeEvent<UI>>(e =>
-            {
-                var source = element.dataSource as Source;
-                var value = e.newValue;
-                source = converter1?.Invoke(ref value);
-                
-            });
         }
-        
+
         public static bool HasWorld(this VisualElement element, Vector2 worldPosition)
         {
             return element.ContainsPoint(element.WorldToLocal(worldPosition));
