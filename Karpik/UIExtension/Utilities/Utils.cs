@@ -34,8 +34,8 @@ namespace Karpik.UIExtension
         public static void RegisterBinding<UI, Source>(this VisualElement element,
                 string bindingPath,
                 string uiValue,
-                TypeConverter<UI, Source> converter1,
-                TypeConverter<Source, UI> converter2,
+                TypeConverter<UI, Source> uiToSource,
+                TypeConverter<Source, UI> sourceToUI,
                 BindingMode bindingMode = BindingMode.TwoWay,
                 bool native = true)
         {
@@ -47,14 +47,14 @@ namespace Karpik.UIExtension
                     bindingMode = bindingMode
                 };
 
-                if (converter2 != null)
+                if (sourceToUI != null)
                 {
-                    binding.sourceToUiConverters.AddConverter(converter2);
+                    binding.sourceToUiConverters.AddConverter(sourceToUI);
                 }
 
-                if (converter1 != null)
+                if (uiToSource != null)
                 {
-                    binding.uiToSourceConverters.AddConverter(converter1);
+                    binding.uiToSourceConverters.AddConverter(uiToSource);
                 }
                 
                 element.SetBinding(uiValue, binding);

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
@@ -28,6 +30,7 @@ namespace Karpik.UIExtension
         private ContextMenuManipulator _contextMenuManipulator = new();
         private EnvironmentType _environmentType;
         private int _zIndex = 0;
+        private HashSet<IManipulator> _manipulators = new();
         
         public BetterVisualElement()
         {
@@ -113,10 +116,27 @@ namespace Karpik.UIExtension
             better.RemovedFrom?.Invoke(element, this);
 
         }
-        
-        public void AddContextMenu(string path, Action<ContextMenuManipulatorEvent> action)
+
+        public void AddManipulator(IManipulator manipulator)
         {
-            _contextMenuManipulator.Add(path, action);
+            manipulator.target = this;
+            _manipulators.Add(manipulator);
+        }
+
+        public void RemoveManipulator(IManipulator manipulator)
+        {
+            _manipulators.Remove(manipulator);
+            manipulator.target = null;
+        }
+
+        public T GetManipulator<T>() where T : IManipulator
+        {
+            return (T)_manipulators.First(x => x.GetType() == typeof(T));
+        }
+        
+        public void AddContextMenu(string path, Action<ContextMenuManipulatorEvent> action, Func<bool> enable = null)
+        {
+            _contextMenuManipulator.Add(path, action, enable);
         }
 
         public void Dispose()
@@ -142,7 +162,10 @@ namespace Karpik.UIExtension
 
         protected virtual void OnDispose()
         {
-            
+            while (_manipulators.Count > 0)
+            {
+                RemoveManipulator(_manipulators.First());
+            }
         }
 
         protected virtual void OnChildAdded(VisualElement element)

@@ -13,6 +13,7 @@ namespace Karpik.UIExtension
 
         public IReadOnlyList<IGraphNode> Nodes => _idToNode.Values.ToList();
         public IReadOnlyList<Line> Lines => _lines;
+        public bool IsEditMode => EnableContextMenu;
         
         [SerializeField]
         private Dictionary<string, IGraphNode> _idToNode = new();
@@ -56,7 +57,6 @@ namespace Karpik.UIExtension
             if (Nodes.FirstOrDefault(x => x.Id == id) is not VisualElement node) return;
             _idToNode.Remove(id);
             Remove(node);
-            //Save();
         }
 
         public virtual void RemoveNode(IGraphNode node)
@@ -97,7 +97,6 @@ namespace Karpik.UIExtension
             line.MarkDirtyRepaint();
             _lines.Add(line);
             OnLineAdded(line);
-            //Save();
         }
         
         protected virtual void RemoveLine(Line line)
@@ -112,8 +111,8 @@ namespace Karpik.UIExtension
             {
                 var node = new T();
                 node.Position = e.Position + new Vector2(-node.Size.x / 2, node.Size.y / 2) + new Vector2(0, -100);
-                AddNode(node);
                 onCreate?.Invoke(node);
+                AddNode(node);
                 Save();
             });
         }
@@ -138,7 +137,7 @@ namespace Karpik.UIExtension
             EnableContextMenu = !EnableContextMenu;
             foreach (var dragManipulator in DragManipulators)
             {
-                dragManipulator.Enabled = EnableContextMenu;
+                dragManipulator.Enabled = IsEditMode;
             }
         }
 
