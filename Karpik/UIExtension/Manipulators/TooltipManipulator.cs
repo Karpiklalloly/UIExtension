@@ -18,6 +18,8 @@ namespace Karpik.UIExtension
             }
         }
         
+        public Func<Vector2> AdditionalOffset;
+        
         private VisualElement _container;
         private Mode _followMode = Mode.FollowCursor;
 
@@ -87,19 +89,34 @@ namespace Karpik.UIExtension
 
         private void SetPosition(PointerMoveEvent e)
         {
+            Vector2 offset = AdditionalOffset?.Invoke() ?? Vector2.zero;
+            
             switch (_followMode)
             {
                 case Mode.FollowCursor:
                     _tooltip.transform.position =
-                        _container.WorldToLocal(e.position) + Vector2.one + new Vector2(10, 10);
+                        _container.WorldToLocal(e.position) + Vector2.one + new Vector2(10, 10) + offset;
+                    ToContainerBounds();
                     break;
                 case Mode.Centralized:
-                    _tooltip.transform.position = _container.WorldToLocal(target.LocalToWorld(Vector2.zero));
+                    _tooltip.transform.position = _container.WorldToLocal(target.LocalToWorld(Vector2.zero)) + offset;
                     _tooltip.transform.position += new Vector3(
                         target.style.width.value.value / 2,
                         target.style.height.value.value / 2);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void ToContainerBounds()
+        {
+            var container = _tooltipContainer?.Invoke();
+            if (container.FullyContains(_tooltip))
+            {
+                return;
+            }
+            VisualElementExtensions.ClampChildWithinParent(_tooltip, container);
         }
         
         public enum Mode
