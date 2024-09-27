@@ -36,6 +36,7 @@ namespace Karpik.UIExtension
         }
 
         public bool Enabled { get; set; } = true;
+        private bool _hasClass = false;
         
         public event Action<VisualElement> DragStarted;
         public event Action<VisualElement> Dragging; 
@@ -74,7 +75,7 @@ namespace Karpik.UIExtension
 
         private void OnCustomStyleResolved(CustomStyleResolvedEvent e)
         {
-            if (e.customStyle.TryGetValue(_draggableEnabledProperty, out var got)) Enabled = got;
+            if (e.customStyle.TryGetValue(_draggableEnabledProperty, out var got)) _hasClass = got;
         }
 
         private void DragBegin(PointerDownEvent e)
@@ -95,6 +96,7 @@ namespace Karpik.UIExtension
 
         private void DragEnd(IPointerEvent e)
         {
+            if (!_hasClass) return;
             if (!_isDragging) return;
             VisualElement droppable;
             bool canDrop = CanDrop(e.position, out droppable);

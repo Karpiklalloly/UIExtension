@@ -28,6 +28,30 @@ namespace Karpik.UIExtension
             }
             return null;
         }
+
+        public static IEnumerable<T> DeepQs<T>(this VisualElement element, string name = null, string className = null)
+            where T : VisualElement
+        {
+            List<T> t = new();
+            var elements = new Queue<VisualElement>();
+            elements.Enqueue(element);
+
+            while (elements.Count > 0)
+            {
+                var element2 = elements.Dequeue();
+                var p = element2.Q<T>(name, className);
+                if (p != null)
+                {
+                    t.Add(p);
+                }
+
+                foreach (var child in element2.Children())
+                {
+                    elements.Enqueue(child);
+                }
+            }
+            return t;
+        }
         
         public static bool FullyContains(this VisualElement container, VisualElement element)
         {
