@@ -116,7 +116,7 @@ namespace Karpik.UIExtension
             {
                 return;
             }
-            VisualElementExtensions.ClampChildWithinParent(_tooltip, container);
+            _tooltip.ToBounds(container);
         }
         
         public enum Mode
