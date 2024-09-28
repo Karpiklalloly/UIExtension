@@ -19,6 +19,7 @@ namespace Karpik.UIExtension
         private bool _startedDragging;
         private VisualElement _child = new VisualElement();
         private Vector2 _size = Vector2.zero;
+        private VisualElement _startElement;
 
         private string _name;
         private VisualElement _root;
@@ -75,8 +76,10 @@ namespace Karpik.UIExtension
             _startMousePosition = e.position;
             target.CapturePointer(e.pointerId);
             _size = target.layout.size;
+            _startElement = target.parent;
             _child.Add(target);
             target.transform.position = _child.WorldToLocal(target.worldBound.position);
+            
             _startPosition = target.transform.position;
             _width = target.style.width;
             _height =  target.style.height;
@@ -95,17 +98,22 @@ namespace Karpik.UIExtension
             target.ReleasePointer(e.pointerId);
             _startedDragging = false;
             _root.Remove(_child);
-            if (_additionalRequirements?.Invoke() == false) return;
+            target.transform.position = Vector3.zero;
+            target.style.width = _width;
+            target.style.height = _height;
             
             var elements = _root
                 .DeepQs<VisualElement>(className: SlotName(_name))
                 .Where(OverlapsTarget);
             
             VisualElement closestSlot = FindClosestSlot(elements, e.position);
-            if (closestSlot == null) return;
-            target.transform.position = Vector3.zero;
-            target.style.width = _width;
-            target.style.height = _height;
+
+            if (closestSlot == null || _additionalRequirements?.Invoke() == false)
+            {
+                _startElement.Add(target);
+                return;
+            }
+
             _positionOnDrop?.Invoke(closestSlot, target);
             
             _onDragEnd?.Invoke();
