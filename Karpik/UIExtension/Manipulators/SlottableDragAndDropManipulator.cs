@@ -27,6 +27,8 @@ namespace Karpik.UIExtension
         private readonly Action<Vector2> _onMove;
         private readonly Action _onDragEnd;
         private readonly Func<bool> _additionalRequirements;
+        private StyleLength _height;
+        private StyleLength _width;
 
         public SlottableDragAndDropManipulator(string name,
             VisualElement root,
@@ -76,6 +78,10 @@ namespace Karpik.UIExtension
             _child.Add(target);
             target.transform.position = _child.WorldToLocal(target.worldBound.position);
             _startPosition = target.transform.position;
+            _width = target.style.width;
+            _height =  target.style.height;
+            target.style.width = _size.x;
+            target.style.height = _size.y;
             _root.Add(_child);
             _startedDragging = true;
             _onDrag?.Invoke();
@@ -98,6 +104,8 @@ namespace Karpik.UIExtension
             VisualElement closestSlot = FindClosestSlot(elements, e.position);
             if (closestSlot == null) return;
             target.transform.position = Vector3.zero;
+            target.style.width = _width;
+            target.style.height = _height;
             _positionOnDrop?.Invoke(closestSlot, target);
             
             _onDragEnd?.Invoke();
@@ -138,7 +146,7 @@ namespace Karpik.UIExtension
         
         private Vector3 RootSpaceOfSlot(VisualElement slot)
         {
-            return _root.WorldToLocal(slot.worldBound.center);
+            return slot.worldBound.center;
         }
     }
 
