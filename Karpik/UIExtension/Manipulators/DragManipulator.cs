@@ -19,7 +19,6 @@ namespace Karpik.UIExtension
                     _target.UnregisterCallback<PointerDownEvent>(DragBegin);
                     _target.UnregisterCallback<PointerUpEvent>(DragEnd);
                     _target.UnregisterCallback<PointerMoveEvent>(PointerMove);
-                    _target.UnregisterCallback<CustomStyleResolvedEvent>(OnCustomStyleResolved);
                     _target.RemoveFromClassList("draggable");
                     _lastDroppable?.RemoveFromClassList("droppable--can-drop");
                     _lastDroppable = null;
@@ -30,20 +29,17 @@ namespace Karpik.UIExtension
                 _target.RegisterCallback<PointerDownEvent>(DragBegin);
                 _target.RegisterCallback<PointerUpEvent>(DragEnd);
                 _target.RegisterCallback<PointerMoveEvent>(PointerMove);
-                _target.RegisterCallback<CustomStyleResolvedEvent>(OnCustomStyleResolved);
                 _target.AddToClassList("draggable");
             }
         }
 
         public bool Enabled { get; set; } = true;
-        private bool _hasClass = false;
         
         public event Action<VisualElement> DragStarted;
         public event Action<VisualElement> Dragging; 
         public event Action<VisualElement> DragEnded;
         
-        private static readonly CustomStyleProperty<bool> _draggableEnabledProperty = new("--draggable-enabled");
-        private const string _droppableId = "droppable";
+        private const string DroppableId = "droppable";
 
         private VisualElement _target;
         private VisualElement _lastDroppable;
@@ -55,12 +51,12 @@ namespace Karpik.UIExtension
         
         public static IVisualElementScheduledItem ChangeParent(VisualElement target,
             VisualElement newParent) {
-            var position_parent = target.ChangeCoordinatesTo(newParent, Vector2.zero);
+            var positionParent = target.ChangeCoordinatesTo(newParent, Vector2.zero);
             target.RemoveFromHierarchy();
             target.MoveTo(Vector2.zero);
             newParent.Add(target);
             return target.schedule.Execute(() => {
-                var newPosition = position_parent - target.ChangeCoordinatesTo(newParent,
+                var newPosition = positionParent - target.ChangeCoordinatesTo(newParent,
                     Vector2.zero);
                 target.RemoveFromHierarchy();
                 target.MoveTo(newPosition);
@@ -68,16 +64,6 @@ namespace Karpik.UIExtension
             });
         }
         
-        public void ResetPosition()
-        {
-            target.MoveTo(Vector2.zero);
-        }
-
-        private void OnCustomStyleResolved(CustomStyleResolvedEvent e)
-        {
-            if (e.customStyle.TryGetValue(_draggableEnabledProperty, out var got)) _hasClass = got;
-        }
-
         private void DragBegin(PointerDownEvent e)
         {
             if (!Enabled) return;
@@ -96,7 +82,6 @@ namespace Karpik.UIExtension
 
         private void DragEnd(IPointerEvent e)
         {
-            if (!_hasClass) return;
             if (!_isDragging) return;
             VisualElement droppable;
             bool canDrop = CanDrop(e.position, out droppable);
@@ -131,7 +116,7 @@ namespace Karpik.UIExtension
         {
             droppable = target.panel.Pick(position);
             var element = droppable;
-            while (element != null && !element.ClassListContains(_droppableId))
+            while (element != null && !element.ClassListContains(DroppableId))
             {
                 element = element.parent;
             }
