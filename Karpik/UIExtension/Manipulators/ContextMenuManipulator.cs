@@ -85,7 +85,6 @@ namespace Karpik.UIExtension
                 {
                     menu.AddItem(pair.Key, false, () => pair.Value.Event?.Invoke(_event));
                 }
-                
             }
             
             menu.DropDown(new Rect(pos, new Vector2(200, 300)), target, true);

@@ -69,6 +69,7 @@ namespace Karpik.UIExtension
         public void Open()
         {
             style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+            Opened?.Invoke();
         }
 
         public void Close()
@@ -78,7 +79,7 @@ namespace Karpik.UIExtension
             Closed?.Invoke();
         }
 
-        protected override void OnRemoveFrom(BetterVisualElement parent)
+        protected override void OnRemoveFrom()
         {
             style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
         }

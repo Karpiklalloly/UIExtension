@@ -15,11 +15,8 @@ namespace Karpik.UIExtension
         public IReadOnlyList<Line> Lines => _lines;
         public bool IsEditMode => EnableContextMenu;
         
-        [SerializeField]
         private Dictionary<string, IGraphNode> _idToNode = new();
-        [SerializeField]
         private List<Line> _lines = new();
-        [SerializeField]
         private TopMenu _menu = new();
         
         public Graph()
@@ -34,38 +31,43 @@ namespace Karpik.UIExtension
             _idToNode.Add(node.Id, node);
             node.name = node.GetType().ToString() + _idToNode.Count.ToString();
             
-            var manipulator = new DragManipulator()
-            {
-                Enabled = true
-            };
-            DragManipulators.Add(manipulator);
-            manipulator.DragEnded += e => Save();
-            node.AddManipulator(manipulator);
-            
             Add(node);
             OnNodeAdded(node);
             
-            foreach (var dragManipulator in DragManipulators)
-            {
-                dragManipulator.Enabled = EnableContextMenu;
-            }
+            var manipulator = GetDragManipulator(node);
+            manipulator.DragEnded += e => Save();
+            manipulator.Enabled = IsEditMode;
+
             Save();
         }
         
         public void RemoveNode(string id)
         {
             if (Nodes.FirstOrDefault(x => x.Id == id) is not VisualElement node) return;
-            _idToNode.Remove(id);
-            Remove(node);
+            RemoveNode(node as IGraphNode);
         }
 
         public virtual void RemoveNode(IGraphNode node)
         {
-            RemoveNode(node.Id);
+            _idToNode.Remove(node.Id);
+            Remove(node as VisualElement);
         }
         
         public new void Clear()
         {
+            var lines = _lines;
+            var nodes = _idToNode.Values.ToList();
+            
+            while (lines.Count > 0)
+            {
+                RemoveLine(lines[0]);
+            }
+
+            while (nodes.Count > 0)
+            {
+                RemoveNode(nodes[0]);
+            }
+            
             base.Clear();
             _idToNode.Clear();
         }
@@ -102,7 +104,6 @@ namespace Karpik.UIExtension
         protected virtual void RemoveLine(Line line)
         {
             Remove(line);
-            Save();
         }
 
         public virtual void AddNodeMenu<T>(string path, Action<T> onCreate, Action<T> onClick) where T : BetterVisualElement, IGraphNode, new()
@@ -141,7 +142,7 @@ namespace Karpik.UIExtension
             }
         }
 
-        protected virtual void OnNodeAdded<T>(T node) where T : BetterVisualElement, IGraphNode
+        protected virtual void OnNodeAdded<T>(T node) where T : VisualElement, IGraphNode
         {
             
         }

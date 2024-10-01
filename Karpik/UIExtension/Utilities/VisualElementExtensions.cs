@@ -65,16 +65,16 @@ namespace Karpik.UIExtension
         
         public static void ToBounds(this VisualElement child, VisualElement parent)
         {
-            float parentWidth = parent.resolvedStyle.width;
-            float parentHeight = parent.resolvedStyle.height;
+            var parentWidth = parent.resolvedStyle.width;
+            var parentHeight = parent.resolvedStyle.height;
 
-            float childWidth = child.resolvedStyle.width;
-            float childHeight = child.resolvedStyle.height;
+            var childWidth = child.resolvedStyle.width;
+            var childHeight = child.resolvedStyle.height;
 
             var childTransform = child.transform;
 
-            float childOffsetX = childTransform.position.x;
-            float childOffsetY = childTransform.position.y;
+            var childOffsetX = childTransform.position.x;
+            var childOffsetY = childTransform.position.y;
 
             if (childOffsetX < 0)
             {

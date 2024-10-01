@@ -16,7 +16,7 @@ namespace Karpik.UIExtension
         [UxmlAttribute]
         public Vector2 Size
         {
-            get => new Vector2(style.width.value.value, style.height.value.value);
+            get => new(style.width.value.value, style.height.value.value);
             set
             {
                 style.width = value.x;
@@ -34,7 +34,7 @@ namespace Karpik.UIExtension
             };
             
             _icon.ToCenter();
-            Add(_icon);
+            hierarchy.Add(_icon);
         }
 
         protected override void OnDispose()

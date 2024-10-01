@@ -108,6 +108,7 @@ namespace Karpik.UIExtension
                     _parent.hierarchy.Add(_background);
                 }
                 _parent.hierarchy.Add(_window);
+                _window.Open();
                 return _window;
             }
         }

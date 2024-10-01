@@ -48,7 +48,6 @@ namespace Karpik.UIExtension
                     UpdateLayout();
             }
         }
-        
     
         [UxmlAttribute][Min(1)]
         public int RowsCount
@@ -101,6 +100,7 @@ namespace Karpik.UIExtension
                     UpdateLayout();
             }
         }
+        
         [UxmlAttribute][Min(1)]
         public int MaxColumns
         {

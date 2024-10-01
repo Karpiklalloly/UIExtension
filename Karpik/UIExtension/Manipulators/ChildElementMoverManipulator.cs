@@ -7,14 +7,13 @@ namespace Karpik.UIExtension
     public class ChildElementMoverManipulator : PointerManipulator
     {
         private IEnumerable<VisualElement> _childs;
-        private bool _dragging = false;
-        private Vector3 _offset;
+        private bool _dragging;
         
-        public ChildElementMoverManipulator()
+        public ChildElementMoverManipulator(MouseButton button = MouseButton.MiddleMouse)
         {
-            activators.Add(new ManipulatorActivationFilter()
+            activators.Add(new ManipulatorActivationFilter
             {
-                button = MouseButton.MiddleMouse
+                button = button
             });
         }
         
@@ -39,7 +38,6 @@ namespace Karpik.UIExtension
             if (!CanStartManipulation(e))
                 return;
             _childs = target.hierarchy.Children();
-            _offset = e.localPosition;
             _dragging = true;
         }
 

@@ -28,60 +28,46 @@ namespace Karpik.UIExtension
         }
 
         private ContextMenuManipulator _contextMenuManipulator = new();
-        private EnvironmentType _environmentType;
         private int _zIndex = 0;
         private HashSet<IManipulator> _manipulators = new();
         
         public BetterVisualElement()
         {
             InitContentContainer();
-            this.AddManipulator(_contextMenuManipulator);
+            AddManipulator(_contextMenuManipulator);
             RegisterCallback<DetachFromPanelEvent>(x => Dispose());
         }
 
-        public new virtual void Add(VisualElement element)
+        public new void Add(VisualElement element)
         {
-            VisualElement parent;
+            VisualElement localParent;
             
             if (contentContainer == this)
             {
                 base.Add(element);
-                parent = this;
+                localParent = this;
             }
             else
             {
-                contentContainer.Add(element);
-                parent = contentContainer;
+                contentContainer.AddChild(element);
+                localParent = contentContainer;
             }
 
-            if (parent == this)
+            if (localParent == this)
             {
                 Sort();
             }
             OnChildAdded(element);
             ChildAdded?.Invoke(element);
-
             
-            if (contentContainer is BetterVisualElement betterParent)
-            {
-                if (contentContainer == parent)
-                {
-                    betterParent.Sort();
-                }
-                
-                betterParent.OnChildAdded(element);
-                betterParent.ChildAdded?.Invoke(element);
-            }
-            
-
             if (element is BetterVisualElement better)
             {
                 better.OnAddTo();
-                better.AddedTo?.Invoke(parent);
+                better.AddedTo?.Invoke(element.parent);
             }
         }
 
-        public new virtual void Remove(VisualElement element)
+        public new void Remove(VisualElement element)
         {
             if (contentContainer == this)
             {
@@ -89,16 +75,19 @@ namespace Karpik.UIExtension
             }
             else
             {
-                contentContainer.Remove(element);
+                contentContainer.RemoveChild(element);
             }
             
+            OnChildRemoved(element);
             ChildRemoved?.Invoke(element);
-            if (element is not BetterVisualElement better) return;
-            better.OnRemoveFrom(this);
-            better.RemovedFrom?.Invoke(element, this);
+            if (element is BetterVisualElement better)
+            {
+                better.OnRemoveFrom();
+                better.RemovedFrom?.Invoke(element, this);
+            }
         }
 
-        public new virtual void RemoveAt(int index)
+        public new void RemoveAt(int index)
         {
             var element = ElementAt(index);
             if (contentContainer == this)
@@ -110,11 +99,13 @@ namespace Karpik.UIExtension
                 contentContainer.RemoveAt(index);
             }
             
+            OnChildRemoved(element);
             ChildRemoved?.Invoke(element);
-            if (element is not BetterVisualElement better) return;
-            better.OnRemoveFrom(this);
-            better.RemovedFrom?.Invoke(element, this);
-
+            if (element is BetterVisualElement better)
+            {
+                better.OnRemoveFrom();
+                better.RemovedFrom?.Invoke(element, this);
+            }
         }
 
         public void AddManipulator(IManipulator manipulator)
@@ -131,7 +122,12 @@ namespace Karpik.UIExtension
 
         public T GetManipulator<T>() where T : IManipulator
         {
-            return (T)_manipulators.First(x => x.GetType() == typeof(T));
+            return (T)GetManipulator(typeof(T));
+        }
+
+        public IManipulator GetManipulator(Type manipulatorType)
+        {
+            return _manipulators.First(x => x.GetType() == manipulatorType);
         }
         
         public void AddContextMenu(string path, Action<ContextMenuManipulatorEvent> action, Func<bool> enable = null)
@@ -144,33 +140,39 @@ namespace Karpik.UIExtension
             _contextMenuManipulator.Enabled = false;
             OnDispose();
         }
-
-        protected virtual void OnAddTo()
-        {
-            
-        }
-
+        
         protected virtual void InitContentContainer()
         {
             
         }
 
-        protected virtual void OnRemoveFrom(BetterVisualElement parent)
+        protected virtual void OnAddTo()
+        {
+            
+        }
+        
+        protected virtual void OnChildAdded(VisualElement element)
+        {
+            
+        }
+
+        protected virtual void OnRemoveFrom()
+        {
+            
+        }
+
+        protected virtual void OnChildRemoved(VisualElement element)
         {
             
         }
 
         protected virtual void OnDispose()
         {
-            while (_manipulators.Count > 0)
+            foreach (var manipulator in _manipulators)
             {
-                RemoveManipulator(_manipulators.First());
+                manipulator.target = null;
             }
-        }
-
-        protected virtual void OnChildAdded(VisualElement element)
-        {
-            
+            _manipulators.Clear();
         }
 
         private void Sort()

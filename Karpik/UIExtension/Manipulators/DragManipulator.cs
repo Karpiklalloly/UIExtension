@@ -19,8 +19,8 @@ namespace Karpik.UIExtension
                     _target.UnregisterCallback<PointerDownEvent>(DragBegin);
                     _target.UnregisterCallback<PointerUpEvent>(DragEnd);
                     _target.UnregisterCallback<PointerMoveEvent>(PointerMove);
-                    _target.RemoveFromClassList("draggable");
-                    _lastDroppable?.RemoveFromClassList("droppable--can-drop");
+                    _target.RemoveFromClassList(DropItemClass);
+                    _lastDroppable?.RemoveFromClassList(DropContainerClass + CanDropClass);
                     _lastDroppable = null;
                 }
 
@@ -29,7 +29,7 @@ namespace Karpik.UIExtension
                 _target.RegisterCallback<PointerDownEvent>(DragBegin);
                 _target.RegisterCallback<PointerUpEvent>(DragEnd);
                 _target.RegisterCallback<PointerMoveEvent>(PointerMove);
-                _target.AddToClassList("draggable");
+                _target.AddToClassList(DropItemClass);
             }
         }
 
@@ -39,7 +39,10 @@ namespace Karpik.UIExtension
         public event Action<VisualElement> Dragging; 
         public event Action<VisualElement> DragEnded;
         
-        private const string DroppableId = "droppable";
+        public const string DropContainerClass = "droppable";
+        public const string DropItemClass = "draggable";
+        public const string DraggingClass = "--dragging";
+        public const string CanDropClass = "--can-drop";
 
         private VisualElement _target;
         private VisualElement _lastDroppable;
@@ -69,7 +72,7 @@ namespace Karpik.UIExtension
             if (!Enabled) return;
             if (e.button != 0) return;
             
-            target.AddToClassList("draggable--dragging");
+            target.AddToClassList(DropItemClass + DraggingClass);
 
             _lastPickingMode = target.pickingMode;
             target.pickingMode = PickingMode.Ignore;
@@ -87,13 +90,13 @@ namespace Karpik.UIExtension
             bool canDrop = CanDrop(e.position, out droppable);
             if (canDrop)
             {
-                droppable.RemoveFromClassList("droppable--can-drop");
+                droppable.RemoveFromClassList(DropContainerClass + CanDropClass);
             }
             
-            target.RemoveFromClassList("draggable--dragging");
-            target.RemoveFromClassList("draggable--can-drop");
+            target.RemoveFromClassList(DropItemClass + DraggingClass);
+            target.RemoveFromClassList(DropItemClass + CanDropClass);
             
-            _lastDroppable?.RemoveFromClassList("droppable--can-drop");
+            _lastDroppable?.RemoveFromClassList(DropContainerClass + CanDropClass);
             _lastDroppable = null;
             
             target.ReleasePointer(e.pointerId);
@@ -116,7 +119,7 @@ namespace Karpik.UIExtension
         {
             droppable = target.panel.Pick(position);
             var element = droppable;
-            while (element != null && !element.ClassListContains(DroppableId))
+            while (element != null && !element.ClassListContains(DropContainerClass))
             {
                 element = element.parent;
             }
@@ -138,20 +141,20 @@ namespace Karpik.UIExtension
             
             if (canDrop)
             {
-                target.AddToClassList("draggable--can-drop");
-                droppable.AddToClassList("droppable--can-drop");
+                target.AddToClassList(DropItemClass + CanDropClass);
+                droppable.AddToClassList(DropContainerClass + CanDropClass);
 
                 if (_lastDroppable != droppable)
                 {
-                    _lastDroppable?.RemoveFromClassList("droppable--can-drop");
+                    _lastDroppable?.RemoveFromClassList(DropContainerClass + CanDropClass);
                 }
 
                 _lastDroppable = droppable;
             }
             else
             {
-                target.RemoveFromClassList("draggable--can-drop");
-                _lastDroppable?.RemoveFromClassList("droppable--can-drop");
+                target.RemoveFromClassList(DropItemClass + CanDropClass);
+                _lastDroppable?.RemoveFromClassList(DropContainerClass + CanDropClass);
                 _lastDroppable = null;
             }
             

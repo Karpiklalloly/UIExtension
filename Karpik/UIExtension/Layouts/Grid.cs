@@ -6,7 +6,7 @@ namespace Karpik.UIExtension
     [UxmlElement]
     public partial class Grid : BetterVisualElement
     {
-        public override VisualElement contentContainer => _root?.Q("Grid");
+        public override VisualElement contentContainer => _root.Q("Grid");
 
         [UxmlAttribute]
         public float Padding
@@ -86,18 +86,12 @@ namespace Karpik.UIExtension
 
         private void ApplyPadding(VisualElement element)
         {
-            element.style.paddingTop = _padding / 2;
-            element.style.paddingRight = _padding / 2;
-            element.style.paddingBottom = _padding / 2;
-            element.style.paddingLeft = _padding / 2;
+            element.style.Padding(_padding / 2);
         }
 
         private void ApplyMargin(VisualElement element)
         {
-            element.style.marginTop = _padding / 2;
-            element.style.marginRight = _padding / 2;
-            element.style.marginBottom = _padding / 2;
-            element.style.marginLeft = _padding / 2;
+            element.style.Margin(_margin / 2);
         }
     }
 }
