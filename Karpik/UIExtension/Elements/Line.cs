@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class Line : BetterVisualElement
+    public partial class Line : ExtendedVisualElement
     {
         [UxmlAttribute]
         public Color StartColor

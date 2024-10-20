@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class Miniature : BetterVisualElement
+    public partial class Miniature : ExtendedVisualElement
     {
         [UxmlAttribute]
         public Texture Texture
@@ -25,7 +25,7 @@ namespace Karpik.UIExtension
         }
         
         private Image _icon;
-
+        
         public Miniature()
         {
             _icon = new Image

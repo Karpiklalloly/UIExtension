@@ -5,12 +5,12 @@ using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
 {
-    public class BetterVisualElement : VisualElement, IDisposable
+    public class ExtendedVisualElement : VisualElement, IDisposable
     {
         public event Action<VisualElement> ChildAdded;
         public event Action<VisualElement> ChildRemoved;
         public event Action<VisualElement> AddedTo;
-        public event Action<VisualElement, BetterVisualElement> RemovedFrom;
+        public event Action<VisualElement> RemovedFrom;
 
         public bool EnableContextMenu
         {
@@ -31,11 +31,9 @@ namespace Karpik.UIExtension
         private int _zIndex = 0;
         private HashSet<IManipulator> _manipulators = new();
         
-        public BetterVisualElement()
+        public ExtendedVisualElement()
         {
-            InitContentContainer();
             AddManipulator(_contextMenuManipulator);
-            RegisterCallback<DetachFromPanelEvent>(x => Dispose());
         }
 
         public new void Add(VisualElement element)
@@ -60,7 +58,7 @@ namespace Karpik.UIExtension
             OnChildAdded(element);
             ChildAdded?.Invoke(element);
             
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.OnAddTo();
                 better.AddedTo?.Invoke(element.parent);
@@ -69,6 +67,8 @@ namespace Karpik.UIExtension
 
         public new void Remove(VisualElement element)
         {
+            var localParent = element.parent;
+            
             if (contentContainer == this)
             {
                 base.Remove(element);
@@ -80,16 +80,17 @@ namespace Karpik.UIExtension
             
             OnChildRemoved(element);
             ChildRemoved?.Invoke(element);
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.OnRemoveFrom();
-                better.RemovedFrom?.Invoke(element, this);
+                better.RemovedFrom?.Invoke(localParent);
             }
         }
 
         public new void RemoveAt(int index)
         {
             var element = ElementAt(index);
+            var localParent = element.parent;
             if (contentContainer == this)
             {
                 base.RemoveAt(index);
@@ -101,10 +102,10 @@ namespace Karpik.UIExtension
             
             OnChildRemoved(element);
             ChildRemoved?.Invoke(element);
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.OnRemoveFrom();
-                better.RemovedFrom?.Invoke(element, this);
+                better.RemovedFrom?.Invoke(localParent);
             }
         }
 
@@ -139,11 +140,6 @@ namespace Karpik.UIExtension
         {
             _contextMenuManipulator.Enabled = false;
             OnDispose();
-        }
-        
-        protected virtual void InitContentContainer()
-        {
-            
         }
 
         protected virtual void OnAddTo()
@@ -180,12 +176,12 @@ namespace Karpik.UIExtension
             base.Sort(SortCondition);
         }
 
-        private int SortCondition(VisualElement e1, VisualElement e2)
+        private static int SortCondition(VisualElement e1, VisualElement e2)
         {
             var z1 = 0;
             var z2 = 0;
-            if (e1 is BetterVisualElement better) z1 = better.ZIndex;
-            if (e2 is BetterVisualElement better2) z2 = better2.ZIndex;
+            if (e1 is ExtendedVisualElement b1) z1 = b1.ZIndex;
+            if (e2 is ExtendedVisualElement b2) z2 = b2.ZIndex;
 
             if (z1 > z2) return 1;
             if (z1 < z2) return -1;

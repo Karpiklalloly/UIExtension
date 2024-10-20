@@ -26,7 +26,7 @@ namespace Karpik.UIExtension
             EnableContextMenu = false;
         }
 
-        public virtual void AddNode<T>(T node) where T : BetterVisualElement, IGraphNode
+        public virtual void AddNode<T>(T node) where T : ExtendedVisualElement, IGraphNode
         {
             _idToNode.Add(node.Id, node);
             node.name = node.GetType().ToString() + _idToNode.Count.ToString();
@@ -37,8 +37,6 @@ namespace Karpik.UIExtension
             var manipulator = GetDragManipulator(node);
             manipulator.DragEnded += e => Save();
             manipulator.Enabled = IsEditMode;
-
-            Save();
         }
         
         public void RemoveNode(string id)
@@ -56,7 +54,7 @@ namespace Karpik.UIExtension
         public new void Clear()
         {
             var lines = _lines;
-            var nodes = _idToNode.Values.ToList();
+            var nodes = _idToNode.Values;
             
             while (lines.Count > 0)
             {
@@ -65,7 +63,7 @@ namespace Karpik.UIExtension
 
             while (nodes.Count > 0)
             {
-                RemoveNode(nodes[0]);
+                RemoveNode(nodes.First());
             }
             
             base.Clear();
@@ -103,10 +101,11 @@ namespace Karpik.UIExtension
         
         protected virtual void RemoveLine(Line line)
         {
+            _lines.Remove(line);
             Remove(line);
         }
 
-        public virtual void AddNodeMenu<T>(string path, Action<T> onCreate, Action<T> onClick) where T : BetterVisualElement, IGraphNode, new()
+        public virtual void AddNodeMenu<T>(string path, Action<T> onCreate, Action<T> onClick) where T : ExtendedVisualElement, IGraphNode, new()
         {
             AddContextMenu(path, (e) =>
             {

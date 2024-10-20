@@ -1,21 +1,18 @@
-.horizontal-center{
+.horizontal-center {
     align-self: center;
 }
 
-.vertical-center{
+.vertical-center {
     top: 50%;
     translate: 0 -50%;
 }
 
-.center{
+.center {
     left: 50%;
     top: 50%;
     translate: -50% -50%;
 }
 
-
-
-.absolute{
+.absolute {
     position: absolute;
-    
 }

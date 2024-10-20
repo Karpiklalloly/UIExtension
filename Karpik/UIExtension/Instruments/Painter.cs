@@ -35,9 +35,8 @@ namespace Karpik.UIExtension
             painter.MoveTo(start);
             painter.LineTo(end);
             
-            painter.ClosePath();
-            
             painter.Stroke();
+            painter.ClosePath();
         }
     }
 }

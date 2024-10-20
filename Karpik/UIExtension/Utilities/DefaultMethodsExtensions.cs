@@ -6,7 +6,7 @@ namespace Karpik.UIExtension
     {
         public static void AddChild(this VisualElement element, VisualElement child)
         {
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.Add(child);
             }
@@ -18,7 +18,7 @@ namespace Karpik.UIExtension
 
         public static void RemoveChild(this VisualElement element, VisualElement child)
         {
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.Remove(child);
             }
@@ -30,7 +30,7 @@ namespace Karpik.UIExtension
         
         public static void RemoveChildAt(this VisualElement element, int index)
         {
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.RemoveAt(index);
             }
@@ -42,7 +42,7 @@ namespace Karpik.UIExtension
 
         public static void ManipulatorAdd(this VisualElement element, IManipulator manipulator)
         {
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.AddManipulator(manipulator);
             }
@@ -54,7 +54,7 @@ namespace Karpik.UIExtension
         
         public static void ManipulatorRemove(this VisualElement element, IManipulator manipulator)
         {
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.RemoveManipulator(manipulator);
             }

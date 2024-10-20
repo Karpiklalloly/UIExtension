@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class FixedGrid : BetterVisualElement
+    public partial class FixedGrid : ExtendedVisualElement
     {
         public Vector2Int Size
         {
@@ -151,10 +151,8 @@ namespace Karpik.UIExtension
         private int _columns = 1;
         private int _maxColumns = 1;
 
-        protected override void InitContentContainer()
+        public FixedGrid()
         {
-            base.InitContentContainer();
-            
             _container.StretchToParentSize();
             _container.name = "Container";
             _container.contentContainer.StretchToParentSize();

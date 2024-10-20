@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class TopMenu : BetterVisualElement
+    public partial class TopMenu : ExtendedVisualElement
     {
         private List<VisualElement> _buttons = new();
 

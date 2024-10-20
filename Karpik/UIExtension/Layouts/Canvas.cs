@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class Canvas : BetterVisualElement
+    public partial class Canvas : ExtendedVisualElement
     {
         public override VisualElement contentContainer => _root;
         
@@ -14,14 +14,7 @@ namespace Karpik.UIExtension
         
         public Canvas()
         {
-            style.flexWrap = new StyleEnum<Wrap>(Wrap.NoWrap);
-        }
-
-        protected override void InitContentContainer()
-        {
-            base.InitContentContainer();
-
-            _root = new BetterVisualElement
+            _root = new ExtendedVisualElement
             {
                 name = "Root"
             };
@@ -29,6 +22,8 @@ namespace Karpik.UIExtension
             _root.AddManipulator(new ChildElementMoverManipulator());
             _root.AddToClassList(DragManipulator.DropContainerClass);
             hierarchy.Add(_root);
+            
+            style.flexWrap = new StyleEnum<Wrap>(Wrap.NoWrap);
         }
 
         protected override void OnChildAdded(VisualElement element)

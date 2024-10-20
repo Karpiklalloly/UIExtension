@@ -1,4 +1,5 @@
 using System;
+using Karpik.UIExtension.Load;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -31,16 +32,18 @@ namespace Karpik.UIExtension
                 SendEvent(e);
             }
         }
-        
-        public new Vector2 Size
+
+        public new TextureInfo Texture
         {
-            get => new(style.width.value.value, style.height.value.value);
+            get => _texture;
             set
             {
-                style.width = value.x;
-                style.height = value.y;
+                _texture = value;
+                base.Texture = value.Texture;
             }
         }
+
+        private TextureInfo _texture;
 
         public GraphNode()
         {

@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
 {
-    public class TooltipElement : BetterVisualElement
+    public class TooltipElement : ExtendedVisualElement
     {
         public string Title
         {

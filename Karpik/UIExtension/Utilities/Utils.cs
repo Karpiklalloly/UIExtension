@@ -1,6 +1,7 @@
 using System;
 using Unity.Properties;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
@@ -34,8 +35,8 @@ namespace Karpik.UIExtension
         public static void RegisterBinding<UI, Source>(this VisualElement element,
                 string bindingPath,
                 string uiValue,
-                TypeConverter<UI, Source> uiToSource,
-                TypeConverter<Source, UI> sourceToUI,
+                TypeConverter<UI, Source> uiToSource = null,
+                TypeConverter<Source, UI> sourceToUI = null,
                 BindingMode bindingMode = BindingMode.TwoWay,
                 bool native = true)
         {
