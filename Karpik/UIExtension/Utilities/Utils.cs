@@ -1,7 +1,5 @@
-using System;
 using Unity.Properties;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
@@ -37,32 +35,25 @@ namespace Karpik.UIExtension
                 string uiValue,
                 TypeConverter<UI, Source> uiToSource = null,
                 TypeConverter<Source, UI> sourceToUI = null,
-                BindingMode bindingMode = BindingMode.TwoWay,
-                bool native = true)
+                BindingMode bindingMode = BindingMode.TwoWay)
         {
-            if (native)
+            var binding = new DataBinding()
             {
-                var binding = new DataBinding()
-                {
-                    dataSourcePath = PropertyPath.FromName(bindingPath),
-                    bindingMode = bindingMode
-                };
+                dataSourcePath = PropertyPath.FromName(bindingPath),
+                bindingMode = bindingMode
+            };
 
-                if (sourceToUI != null)
-                {
-                    binding.sourceToUiConverters.AddConverter(sourceToUI);
-                }
-
-                if (uiToSource != null)
-                {
-                    binding.uiToSourceConverters.AddConverter(uiToSource);
-                }
-                
-                element.SetBinding(uiValue, binding);
-                return;
+            if (sourceToUI != null)
+            {
+                binding.sourceToUiConverters.AddConverter(sourceToUI);
             }
-            
-            throw new NotImplementedException("Non native binding is not supported. Use native instead.");
+
+            if (uiToSource != null)
+            {
+                binding.uiToSourceConverters.AddConverter(uiToSource);
+            }
+                
+            element.SetBinding(uiValue, binding);
         }
 
         public static bool HasWorld(this VisualElement element, Vector2 worldPosition)

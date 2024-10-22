@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 namespace Karpik.UIExtension.Load
@@ -7,20 +8,27 @@ namespace Karpik.UIExtension.Load
     {
         public TextureInfo Load(string key)
         {
-            var handle = Addressables.LoadAssetAsync<Texture>(key);
-            handle.WaitForCompletion();
             TextureInfo info = null;
-            if (handle.IsDone)
+            
+            try
             {
-                info = handle.Result == null
-                    ? new ResourcesLoader().Load(key)
-                    : new TextureInfo(handle.Result, key);
+                var handle = Addressables.LoadAssetAsync<Texture>(key);
+                handle.WaitForCompletion();
+                if (handle.IsDone && handle.Result != null) 
+                {
+                    info = new TextureInfo(handle.Result, key);
+                    handle.Release();
+                }
+                else
+                {
+                    info = new ResourcesLoader().Load(key);
+                }
             }
-            else
+            catch (InvalidKeyException)
             {
-                Debug.LogError($"Failed to load {key} texture");
+                info = new ResourcesLoader().Load(key);
             }
-            handle.Release();
+
             return info;
         }
     }
