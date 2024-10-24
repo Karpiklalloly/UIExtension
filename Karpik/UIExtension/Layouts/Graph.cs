@@ -34,7 +34,6 @@ namespace Karpik.UIExtension
             node.name = node.GetType().ToString() + _idToNode.Count.ToString();
             
             Add(node);
-            OnNodeAdded(node);
             
             var manipulator = GetDragManipulator(node);
             manipulator.DragEnded += e => Save();
@@ -59,6 +58,8 @@ namespace Karpik.UIExtension
                 _startLinkNode = null;
                 Save();
             }, () => EnableContextMenu && _startLinkNode is not null && _startLinkNode != node);
+            
+            OnNodeAdded(node);
         }
         
         public void RemoveNode(string id)
@@ -80,6 +81,13 @@ namespace Karpik.UIExtension
                 {
                     RemoveLine(line);
                 }
+            }
+
+            if (node is ExtendedVisualElement e)
+            {
+                e.GetManipulator<ContextMenuManipulator>().Remove("Remove");
+                e.GetManipulator<ContextMenuManipulator>().Remove("Start Link");
+                e.GetManipulator<ContextMenuManipulator>().Remove("Link");
             }
             
             OnNodeRemoved(node);
@@ -121,6 +129,11 @@ namespace Karpik.UIExtension
             line.EndColor = Color.red;
             
             AddLine(line);
+            
+            var drag = line.GetManipulator<DragManipulator>();
+            drag.target = null;
+            DragManipulators.Remove(drag);
+            line.RemoveManipulator(drag);
             return line;
         }
 
@@ -130,6 +143,14 @@ namespace Karpik.UIExtension
             line.ZIndex = -1;
             line.MarkDirtyRepaint();
             _lines.Add(line);
+            
+            line.EnableContextMenu = true;
+            line.AddContextMenu("Remove", (e) =>
+            {
+                RemoveLine(line);
+                Save();
+            }, () => EnableContextMenu);
+            
             OnLineAdded(line);
         }
         
@@ -137,6 +158,8 @@ namespace Karpik.UIExtension
         {
             _lines.Remove(line);
             Remove(line);
+            
+            line.GetManipulator<ContextMenuManipulator>().Remove("Remove");
             OnLineRemoved(line);
         }
 

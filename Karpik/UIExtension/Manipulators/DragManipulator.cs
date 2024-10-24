@@ -12,7 +12,6 @@ namespace Karpik.UIExtension
             get => _target;
             set
             {
-                if (value == null) return;
                 if (_target == value) return;
                 if (_target != null)
                 {
@@ -25,7 +24,7 @@ namespace Karpik.UIExtension
                 }
 
                 _target = value;
-                
+                if (_target == null) return;
                 _target.RegisterCallback<PointerDownEvent>(DragBegin);
                 _target.RegisterCallback<PointerUpEvent>(DragEnd);
                 _target.RegisterCallback<PointerMoveEvent>(PointerMove);
