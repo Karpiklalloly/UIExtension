@@ -77,16 +77,19 @@ namespace Karpik.UIExtension
             var offset = new Vector3(0, -300, 0);
             pos += offset;
             var menu = new GenericDropdownMenu();
-                    
+            
+            bool has = false;
             foreach (var pair in _elements)
             {
                 var enabled = pair.Value.Enable?.Invoke() ?? false;
                 if (enabled)
                 {
+                    has = true;
                     menu.AddItem(pair.Key, false, () => pair.Value.Event?.Invoke(_event));
                 }
             }
-            
+
+            if (!has) return;
             menu.DropDown(new Rect(pos, new Vector2(200, 300)), target, true);
             menu.contentContainer.RegisterCallbackOnce<DetachFromPanelEvent>((e) => _showed = false);
             _showed = true;
