@@ -96,7 +96,7 @@ namespace Karpik.UIExtension
 
             public ModalPart<T> Add(VisualElement element)
             {
-                _window.Add(element);
+                _window.AddChild(element);
                 return this;
             }
 
@@ -105,9 +105,10 @@ namespace Karpik.UIExtension
                 _windows.Push(_window);
                 if (_background.parent == null)
                 {
-                    _parent.hierarchy.Add(_background);
+                    _parent.AddChild(_background);
                 }
                 _parent.hierarchy.Add(_window);
+                _window.Open();
                 return _window;
             }
         }
@@ -119,7 +120,7 @@ namespace Karpik.UIExtension
         
         private static void TryRemoveBackground()
         {
-            if (_windows.Count == 0) _background.hierarchy.parent.Remove(_background);
+            if (_windows.Count == 0) _background.parent.RemoveChild(_background);
         }
     }
 }

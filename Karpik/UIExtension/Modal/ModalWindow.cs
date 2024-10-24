@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class ModalWindow : BetterVisualElement, IModalWindow
+    public partial class ModalWindow : ExtendedVisualElement, IModalWindow
     {
         public event Action Opened;
         public event Action Closed;
@@ -56,11 +56,6 @@ namespace Karpik.UIExtension
         public ModalWindow()
         {
             this.ToCenter();
-        }
-
-        protected override void InitContentContainer()
-        {
-            base.InitContentContainer();
             InitWindow();
             
             hierarchy.Add(_window);
@@ -69,6 +64,7 @@ namespace Karpik.UIExtension
         public void Open()
         {
             style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+            Opened?.Invoke();
         }
 
         public void Close()
@@ -78,7 +74,7 @@ namespace Karpik.UIExtension
             Closed?.Invoke();
         }
 
-        protected override void OnRemoveFrom(BetterVisualElement parent)
+        protected override void OnRemoveFrom()
         {
             style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
         }

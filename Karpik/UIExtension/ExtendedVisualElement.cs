@@ -5,12 +5,12 @@ using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
 {
-    public class BetterVisualElement : VisualElement, IDisposable
+    public class ExtendedVisualElement : VisualElement, IDisposable
     {
         public event Action<VisualElement> ChildAdded;
         public event Action<VisualElement> ChildRemoved;
         public event Action<VisualElement> AddedTo;
-        public event Action<VisualElement, BetterVisualElement> RemovedFrom;
+        public event Action<VisualElement> RemovedFrom;
 
         public bool EnableContextMenu
         {
@@ -28,79 +28,69 @@ namespace Karpik.UIExtension
         }
 
         private ContextMenuManipulator _contextMenuManipulator = new();
-        private EnvironmentType _environmentType;
         private int _zIndex = 0;
         private HashSet<IManipulator> _manipulators = new();
         
-        public BetterVisualElement()
+        public ExtendedVisualElement()
         {
-            InitContentContainer();
-            this.AddManipulator(_contextMenuManipulator);
-            RegisterCallback<DetachFromPanelEvent>(x => Dispose());
+            AddManipulator(_contextMenuManipulator);
         }
 
-        public new virtual void Add(VisualElement element)
+        public new void Add(VisualElement element)
         {
-            VisualElement parent;
+            VisualElement localParent;
             
             if (contentContainer == this)
             {
                 base.Add(element);
-                parent = this;
+                localParent = this;
             }
             else
             {
-                contentContainer.Add(element);
-                parent = contentContainer;
+                contentContainer.AddChild(element);
+                localParent = contentContainer;
             }
 
-            if (parent == this)
+            if (localParent == this)
             {
                 Sort();
             }
             OnChildAdded(element);
             ChildAdded?.Invoke(element);
-
             
-            if (contentContainer is BetterVisualElement betterParent)
-            {
-                if (contentContainer == parent)
-                {
-                    betterParent.Sort();
-                }
-                
-                betterParent.OnChildAdded(element);
-                betterParent.ChildAdded?.Invoke(element);
-            }
-            
-
-            if (element is BetterVisualElement better)
+            if (element is ExtendedVisualElement better)
             {
                 better.OnAddTo();
-                better.AddedTo?.Invoke(parent);
+                better.AddedTo?.Invoke(element.parent);
             }
         }
 
-        public new virtual void Remove(VisualElement element)
+        public new void Remove(VisualElement element)
         {
+            var localParent = element.parent;
+            
             if (contentContainer == this)
             {
                 base.Remove(element);
             }
             else
             {
-                contentContainer.Remove(element);
+                contentContainer.RemoveChild(element);
             }
             
+            OnChildRemoved(element);
             ChildRemoved?.Invoke(element);
-            if (element is not BetterVisualElement better) return;
-            better.OnRemoveFrom(this);
-            better.RemovedFrom?.Invoke(element, this);
+            if (element is ExtendedVisualElement better)
+            {
+                better.OnRemoveFrom();
+                better.RemovedFrom?.Invoke(localParent);
+            }
         }
 
-        public new virtual void RemoveAt(int index)
+        public new void RemoveAt(int index)
         {
             var element = ElementAt(index);
+            var localParent = element.parent;
             if (contentContainer == this)
             {
                 base.RemoveAt(index);
@@ -110,11 +100,13 @@ namespace Karpik.UIExtension
                 contentContainer.RemoveAt(index);
             }
             
+            OnChildRemoved(element);
             ChildRemoved?.Invoke(element);
-            if (element is not BetterVisualElement better) return;
-            better.OnRemoveFrom(this);
-            better.RemovedFrom?.Invoke(element, this);
-
+            if (element is ExtendedVisualElement better)
+            {
+                better.OnRemoveFrom();
+                better.RemovedFrom?.Invoke(localParent);
+            }
         }
 
         public void AddManipulator(IManipulator manipulator)
@@ -131,7 +123,12 @@ namespace Karpik.UIExtension
 
         public T GetManipulator<T>() where T : IManipulator
         {
-            return (T)_manipulators.First(x => x.GetType() == typeof(T));
+            return (T)GetManipulator(typeof(T));
+        }
+
+        public IManipulator GetManipulator(Type manipulatorType)
+        {
+            return _manipulators.First(x => x.GetType() == manipulatorType);
         }
         
         public void AddContextMenu(string path, Action<ContextMenuManipulatorEvent> action, Func<bool> enable = null)
@@ -149,28 +146,29 @@ namespace Karpik.UIExtension
         {
             
         }
-
-        protected virtual void InitContentContainer()
+        
+        protected virtual void OnChildAdded(VisualElement element)
         {
             
         }
 
-        protected virtual void OnRemoveFrom(BetterVisualElement parent)
+        protected virtual void OnRemoveFrom()
+        {
+            
+        }
+
+        protected virtual void OnChildRemoved(VisualElement element)
         {
             
         }
 
         protected virtual void OnDispose()
         {
-            while (_manipulators.Count > 0)
+            foreach (var manipulator in _manipulators)
             {
-                RemoveManipulator(_manipulators.First());
+                manipulator.target = null;
             }
-        }
-
-        protected virtual void OnChildAdded(VisualElement element)
-        {
-            
+            _manipulators.Clear();
         }
 
         private void Sort()
@@ -178,12 +176,12 @@ namespace Karpik.UIExtension
             base.Sort(SortCondition);
         }
 
-        private int SortCondition(VisualElement e1, VisualElement e2)
+        private static int SortCondition(VisualElement e1, VisualElement e2)
         {
             var z1 = 0;
             var z2 = 0;
-            if (e1 is BetterVisualElement better) z1 = better.ZIndex;
-            if (e2 is BetterVisualElement better2) z2 = better2.ZIndex;
+            if (e1 is ExtendedVisualElement b1) z1 = b1.ZIndex;
+            if (e2 is ExtendedVisualElement b2) z2 = b2.ZIndex;
 
             if (z1 > z2) return 1;
             if (z1 < z2) return -1;

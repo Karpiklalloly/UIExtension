@@ -6,13 +6,15 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class TopMenu : BetterVisualElement
+    public partial class TopMenu : ExtendedVisualElement
     {
         private List<VisualElement> _buttons = new();
-        
+
+        public new MenuElement this[int index] => new(_buttons[index]);
+
         public TopMenu()
         {
-            InitStyles();
+            this.ToSideBar(side: Selectors.Side.Top);
         }
 
         public void AddButton(string text, Action onClick, bool toggle = false)
@@ -51,17 +53,24 @@ namespace Karpik.UIExtension
             style.backgroundColor = color;
         }
 
-        public void SetButtonColor(Color color)
+        public struct MenuElement
         {
-            foreach (var button in _buttons)
-            {
-                button.style.backgroundColor = color;
-            }
-        }
+            private VisualElement _element;
 
-        private void InitStyles()
-        {
-            this.ToSideBar(side: Selectors.Side.Top);
+            public MenuElement(VisualElement element)
+            {
+                _element = element;
+            }
+            
+            public void SetBackgroundColor(Color color)
+            {
+                _element.style.backgroundColor = color;
+            }
+            
+            public void SetTextColor(Color color)
+            {
+                _element.style.color = color;
+            }
         }
     }
 }

@@ -5,67 +5,78 @@ using UnityEngine.UIElements;
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class Line : BetterVisualElement
+    public partial class Line : ExtendedVisualElement
     {
         [UxmlAttribute]
-        public Color StartColor { get; set; } = Color.green;
+        public Color StartColor
+        {
+            get => _painter.StartColor;
+            set => _painter.StartColor = value;
+        }
+        
         [UxmlAttribute]
-
-        public Color EndColor { get; set; } = Color.green;
+        public Color EndColor
+        {
+            get => _painter.EndColor;
+            set => _painter.EndColor = value;
+        }
         
         [UxmlAttribute]
         public float Width
         {
-            get => _width;
+            get => _painter.Width;
             set
             {
-                _width = value;
-                style.height = _width;
+                _painter.Width = value;
+                style.height = value;
             }
         }
+
         [UxmlAttribute]
-        public Vector2 Start { get; set; } = Vector2.zero;
+        public Vector2 Start { get; set; }
+
         [UxmlAttribute]
-        public Vector2 End { get; set; } = Vector2.zero;
-        [UxmlAttribute]
-        public Vector2 StartOffset { get; set; } = Vector2.zero;
-        [UxmlAttribute]
-        public Vector2 EndOffset { get; set; } = Vector2.zero;
-        
-        public Action<Line> OnClick { get; set; } = null;
+        public Vector2 End { get; set; }
         
         public VisualElement StartElement => _start as VisualElement;
         public VisualElement EndElement => _end as VisualElement;
 
-        private float _width = 5f;
+        private Painter _painter;
         
         private IPositionNotify _start = null;
         private IPositionNotify _end = null;
 
+        private Vector2 _startOffset = Vector2.zero;
+        private Vector2 _endOffset = Vector2.zero;
+
         public Line()
         {
-            style.height = _width;
-            this.RegisterCallback<ClickEvent>(Clicked);
+            StartColor = Color.white;
+            EndColor = Color.white;
+            Width = 5;
+            
+            style.height = Width;
+            _painter.Start = Vector2.zero;
             generateVisualContent += OnGenerateVisualContent;
             transform.position = new Vector3(transform.position.x, transform.position.y, -100);
         }
 
 
-        public void SetStart<T>(T value, Vector2 offset) where T : IPositionNotify
+        public void SetStart(IPositionNotify value, Vector2 offset)
         {
             _start?.UnregisterValueChangedCallback(OnStartChanged);
             value.RegisterValueChangedCallback(OnStartChanged);
-            StartOffset = offset;
+            _startOffset = offset;
             Start = value.value;
             _start = value;
             Update();
         }
         
-        public void SetEnd<T>(T value, Vector2 offset) where T : IPositionNotify
+        public void SetEnd(IPositionNotify value, Vector2 offset)
         {
             _end?.UnregisterValueChangedCallback(OnEndChanged);
             value.RegisterValueChangedCallback(OnEndChanged);
-            EndOffset = offset;
+            _endOffset = offset;
             End = value.value;
             _end = value;
             Update();
@@ -87,62 +98,41 @@ namespace Karpik.UIExtension
 
         private void Update()
         {
-            var start = Start + StartOffset;
-            var end = End + EndOffset;
+            var start = Start + _startOffset;
+            var end = End + _endOffset;
             var rotation = 90 - Mathf.Atan2(end.x - start.x, end.y - start.y) * Mathf.Rad2Deg;
             
             transform.position = Vector2.Lerp(start, end, 0.5f) -
                                  new Vector2(Vector2.Distance(start, end) / 2, 0);
             style.width = Vector2.Distance(start, end);
-            transform.rotation = Quaternion.Euler(
-                0, 0, rotation);
+            _painter.End = new Vector2(style.width.value.value, 0);
+            transform.rotation = Quaternion.Euler(0, 0, rotation);
         }
 
         private void OnGenerateVisualContent(MeshGenerationContext ctx)
         {
-            var painter = ctx.painter2D;
-            painter.lineWidth = Width;
-            painter.strokeGradient = new Gradient()
-            {
-                colorKeys = new GradientColorKey[]
-                {
-                    new() { color = StartColor, time = 0 },
-                    new() { color = EndColor, time = 1 }
-                }
-            };
-            painter.lineJoin = LineJoin.Round;
-            painter.lineCap = LineCap.Round;
-            
-            painter.BeginPath();
-            
-            painter.MoveTo(new Vector2(0, Width / 2));
-            painter.LineTo(new Vector2(style.width.value.value, Width / 2));
-            
-            painter.ClosePath();
-            
-            painter.Stroke();
+            _painter.Draw(ctx);
         }
 
         protected override void OnDispose()
         {
             base.OnDispose();
             
-            StartOffset = Vector2.zero;
-            EndOffset = Vector2.zero;
+            _startOffset = Vector2.zero;
+            _endOffset = Vector2.zero;
             
             Start = Vector2.zero;
             End = Vector2.zero;
             
-            _start.UnregisterValueChangedCallback(OnStartChanged);
-            _end.UnregisterValueChangedCallback(OnEndChanged);
-
-            _start = null;
-            _end = null;
-
-            OnClick = null;
+            UnRegister();
         }
 
-        protected override void OnRemoveFrom(BetterVisualElement parent)
+        protected override void OnRemoveFrom()
+        {
+            UnRegister();
+        }
+
+        private void UnRegister()
         {
             _start.UnregisterValueChangedCallback(OnStartChanged);
             _end.UnregisterValueChangedCallback(OnEndChanged);
@@ -150,11 +140,5 @@ namespace Karpik.UIExtension
             _start = null;
             _end = null;
         }
-        
-        private void Clicked(ClickEvent evt)
-        {
-            OnClick?.Invoke(this);
-        }
-
     }
 }

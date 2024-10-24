@@ -21,7 +21,7 @@ namespace Karpik.UIExtension
         public Func<Vector2> AdditionalOffset;
         
         private VisualElement _container;
-        private Mode _followMode = Mode.FollowCursor;
+        private Mode _followMode;
 
         private Func<string> _getTitle;
         private Func<string> _getDescription;

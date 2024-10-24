@@ -1,12 +1,13 @@
 using System;
+using Karpik.UIExtension.Load;
 using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
 {
     [UxmlElement]
-    public partial class Grid : BetterVisualElement
+    public partial class Grid : ExtendedVisualElement
     {
-        public override VisualElement contentContainer => _root?.Q("Grid");
+        public override VisualElement contentContainer => _root.Q("Grid");
 
         [UxmlAttribute]
         public float Padding
@@ -36,6 +37,19 @@ namespace Karpik.UIExtension
             }
         }
 
+        public float LineHeight
+        {
+            get => _lineHeight;
+            set
+            {
+                _lineHeight = value;
+                foreach (var child in Children())
+                {
+                    ApplyHeight(child);
+                }
+            }
+        }
+
         [UxmlAttribute("CountPerLine")]
         public int CountPerLine
         {
@@ -55,14 +69,14 @@ namespace Karpik.UIExtension
         
         private float _margin = 0;
         private float _padding = 0;
+        private float _lineHeight = 128;
         private int _countPerLine = 1;
         
-        private VisualElement _root;
-        
-        protected override void InitContentContainer()
+        private VisualElement _root = new VisualElement();
+
+        public Grid()
         {
-            base.InitContentContainer();
-            _root = LoadHelper.Grid.CloneTree();
+            _root.ToGrid();
             hierarchy.Add(_root);
         }
 
@@ -77,6 +91,7 @@ namespace Karpik.UIExtension
             ApplyFlex(element);
             ApplyPadding(element);
             ApplyMargin(element);
+            ApplyHeight(element);
         }
 
         private void ApplyFlex(VisualElement element)
@@ -86,18 +101,17 @@ namespace Karpik.UIExtension
 
         private void ApplyPadding(VisualElement element)
         {
-            element.style.paddingTop = _padding / 2;
-            element.style.paddingRight = _padding / 2;
-            element.style.paddingBottom = _padding / 2;
-            element.style.paddingLeft = _padding / 2;
+            element.style.Padding(_padding / 2);
         }
 
         private void ApplyMargin(VisualElement element)
         {
-            element.style.marginTop = _padding / 2;
-            element.style.marginRight = _padding / 2;
-            element.style.marginBottom = _padding / 2;
-            element.style.marginLeft = _padding / 2;
+            element.style.Margin(_margin / 2);
+        }
+
+        private void ApplyHeight(VisualElement element)
+        {
+            element.style.height = _lineHeight;
         }
     }
 }

@@ -125,7 +125,7 @@ namespace Karpik.UIExtension
             if (!_startedDragging) return;
 
             var pointerDelta = e.position - _startMousePosition;
-            target.transform.position = _startPosition + pointerDelta;
+            target.MoveTo(_startPosition + pointerDelta);
             target.style.width = _size.x;
             target.style.height = _size.y;
             _onMove?.Invoke(target.transform.position);

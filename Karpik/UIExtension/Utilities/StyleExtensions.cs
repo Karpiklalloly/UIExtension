@@ -40,6 +40,15 @@ namespace Karpik.UIExtension
             style.marginRight = new StyleLength(new Length(margin, unit));
         }
         
+        public static void Margin(this IStyle style, 
+            float margin)
+        {
+            style.marginBottom = margin;
+            style.marginTop = margin;
+            style.marginLeft = margin;
+            style.marginRight = margin;
+        }
+        
         public static void Padding(this IStyle style, 
             float top,
             float right,
@@ -73,6 +82,15 @@ namespace Karpik.UIExtension
             style.paddingTop = new StyleLength(new Length(padding, unit));
             style.paddingLeft = new StyleLength(new Length(padding, unit));
             style.paddingRight = new StyleLength(new Length(padding, unit));
+        }
+        
+        public static void Padding(this IStyle style, 
+            float padding)
+        {
+            style.paddingBottom = padding;
+            style.paddingTop = padding;
+            style.paddingLeft = padding;
+            style.paddingRight = padding;
         }
         
         public static void Border(this IStyle style, 
@@ -113,23 +131,28 @@ namespace Karpik.UIExtension
             style.borderRightWidth = new StyleFloat(right);
             style.borderRightColor = new StyleColor(colorRight);
         }
-        
-        public static void Border(this IStyle style, 
-            float width,
+
+        public static void BorderColor(this IStyle style,
             Color color)
         {
-            style.borderBottomWidth = new StyleFloat(width);
             style.borderBottomColor = new StyleColor(color);
-            
-            style.borderTopWidth = new StyleFloat(width);
             style.borderTopColor = new StyleColor(color);
-            
-            style.borderLeftWidth = new StyleFloat(width);
             style.borderLeftColor = new StyleColor(color);
-            
-            style.borderRightWidth = new StyleFloat(width);
             style.borderRightColor = new StyleColor(color);
         }
+
+        public static Color BorderColor(this IStyle style) => style.borderBottomColor.value;
+
+        public static void BorderWidth(this IStyle style,
+            float width)
+        {
+            style.borderBottomWidth = new StyleFloat(width);
+            style.borderTopWidth = new StyleFloat(width);
+            style.borderLeftWidth = new StyleFloat(width);
+            style.borderRightWidth = new StyleFloat(width);
+        }
+        
+        public static float BorderWidth(this IStyle style) => style.borderBottomWidth.value;
 
         public static void BorderRadius(this IStyle style, 
             float topLeft,
@@ -151,5 +174,7 @@ namespace Karpik.UIExtension
             style.borderBottomLeftRadius = new StyleLength(radius);
             style.borderBottomRightRadius = new StyleLength(radius);
         }
+        
+        public static float BorderRadius(this IStyle style) => style.borderTopLeftRadius.value.value;
     }
 }
