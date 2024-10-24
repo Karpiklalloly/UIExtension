@@ -129,7 +129,8 @@ namespace Karpik.UIExtension
             set
             {
                 _makeItem = value;
-                UpdateLayout();
+                if (AutoUpdate)
+                    UpdateLayout();
             }
         }
 
