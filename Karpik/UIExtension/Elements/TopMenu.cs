@@ -8,6 +8,15 @@ namespace Karpik.UIExtension
     [UxmlElement]
     public partial class TopMenu : ExtendedVisualElement
     {
+        public float Height
+        {
+            get => style.height.value.value;
+            set
+            {
+                style.height = value;
+            }
+        }
+        
         private List<VisualElement> _buttons = new();
 
         public new MenuElement this[int index] => new(_buttons[index]);
