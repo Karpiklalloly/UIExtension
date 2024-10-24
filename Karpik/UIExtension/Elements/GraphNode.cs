@@ -1,7 +1,6 @@
 using System;
 using Karpik.UIExtension.Load;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
 {
@@ -31,12 +30,7 @@ namespace Karpik.UIExtension
         {
             Size = new Vector2(100, 100);
             Id = Guid.NewGuid().ToString();
-        }
-        
-        public void SetValueWithoutNotify(Vector2 newValue)
-        {
-            style.left = new StyleLength(newValue.x);
-            style.top = new StyleLength(newValue.y);
+            Texture = PlaceHolder.TextureInfo;
         }
         
         public void SetId(string id)

@@ -2,7 +2,7 @@
 {
     public class TextureLoader
     {
-        public ITextureLoader Loader { get; set; } = new DefaultAddressablesTextureLoader();
+        public ITextureLoader Loader { get; set; } = new ResourcesLoader();
         
         public static TextureLoader Instance { get; } = new TextureLoader();
         

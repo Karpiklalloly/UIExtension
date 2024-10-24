@@ -19,6 +19,8 @@ namespace Karpik.UIExtension
         private List<Line> _lines = new();
         private TopMenu _menu = new();
         
+        private IGraphNode _startLinkNode;
+        
         public Graph()
         {
             hierarchy.Add(_menu);
@@ -37,6 +39,26 @@ namespace Karpik.UIExtension
             var manipulator = GetDragManipulator(node);
             manipulator.DragEnded += e => Save();
             manipulator.Enabled = IsEditMode;
+
+            node.EnableContextMenu = true;
+            
+            node.AddContextMenu("Remove", (e) =>
+            {
+                RemoveNode(node);
+                Save();
+            }, () => EnableContextMenu);
+            
+            node.AddContextMenu("Start Link", e =>
+            {
+                _startLinkNode = node;
+            }, () => EnableContextMenu && _startLinkNode is null);
+            
+            node.AddContextMenu("Link", e =>
+            {
+                AddLine(_startLinkNode, node);
+                _startLinkNode = null;
+                Save();
+            }, () => EnableContextMenu && _startLinkNode is not null && _startLinkNode != node);
         }
         
         public void RemoveNode(string id)
@@ -49,6 +71,18 @@ namespace Karpik.UIExtension
         {
             _idToNode.Remove(node.Id);
             Remove(node as VisualElement);
+            
+            foreach (var line in _lines.ToList())
+            {
+                if (Nodes.Any(x =>
+                        line.StartElement == x
+                        || line.EndElement == x))
+                {
+                    RemoveLine(line);
+                }
+            }
+            
+            OnNodeRemoved(node);
         }
         
         public new void Clear()
@@ -103,14 +137,15 @@ namespace Karpik.UIExtension
         {
             _lines.Remove(line);
             Remove(line);
+            OnLineRemoved(line);
         }
 
-        public virtual void AddNodeMenu<T>(string path, Action<T> onCreate, Action<T> onClick) where T : ExtendedVisualElement, IGraphNode, new()
+        public virtual void AddNodeMenu<T>(string path, Action<T> onCreate) where T : ExtendedVisualElement, IGraphNode, new()
         {
             AddContextMenu(path, (e) =>
             {
                 var node = new T();
-                node.Position = e.Position + new Vector2(-node.Size.x / 2, node.Size.y / 2) + new Vector2(0, -100);
+                node.Position = this.WorldToLocal(e.Position) + new Vector2(-node.Size.x / 2, node.Size.y / 2) + new Vector2(0, -100);
                 onCreate?.Invoke(node);
                 AddNode(node);
                 Save();
@@ -146,7 +181,17 @@ namespace Karpik.UIExtension
             
         }
 
+        protected virtual void OnNodeRemoved(IGraphNode node)
+        {
+            
+        }
+
         protected virtual void OnLineAdded(Line line)
+        {
+            
+        }
+        
+        protected virtual void OnLineRemoved(Line line)
         {
             
         }
