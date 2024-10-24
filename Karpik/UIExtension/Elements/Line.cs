@@ -38,8 +38,6 @@ namespace Karpik.UIExtension
         [UxmlAttribute]
         public Vector2 End { get; set; }
         
-        public Action<Line> OnClick { get; set; } = null;
-        
         public VisualElement StartElement => _start as VisualElement;
         public VisualElement EndElement => _end as VisualElement;
 
@@ -59,7 +57,6 @@ namespace Karpik.UIExtension
             
             style.height = Width;
             _painter.Start = Vector2.zero;
-            RegisterCallback<ClickEvent>(Clicked);
             generateVisualContent += OnGenerateVisualContent;
             transform.position = new Vector3(transform.position.x, transform.position.y, -100);
         }
@@ -128,8 +125,6 @@ namespace Karpik.UIExtension
             End = Vector2.zero;
             
             UnRegister();
-
-            OnClick = null;
         }
 
         protected override void OnRemoveFrom()
@@ -145,11 +140,5 @@ namespace Karpik.UIExtension
             _start = null;
             _end = null;
         }
-        
-        private void Clicked(ClickEvent evt)
-        {
-            OnClick?.Invoke(this);
-        }
-
     }
 }
