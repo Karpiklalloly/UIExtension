@@ -131,6 +131,8 @@ namespace Karpik.UIExtension
             AddLine(line);
             
             var drag = line.GetManipulator<DragManipulator>();
+            if (drag == null) return line;
+            
             drag.target = null;
             DragManipulators.Remove(drag);
             line.RemoveManipulator(drag);

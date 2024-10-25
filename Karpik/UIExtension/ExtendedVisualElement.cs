@@ -128,7 +128,7 @@ namespace Karpik.UIExtension
 
         public IManipulator GetManipulator(Type manipulatorType)
         {
-            return _manipulators.First(x => x.GetType() == manipulatorType);
+            return _manipulators.FirstOrDefault(x => x.GetType() == manipulatorType);
         }
         
         public void AddContextMenu(string path, Action<ContextMenuManipulatorEvent> action, Func<bool> enable = null)
