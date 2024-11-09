@@ -165,13 +165,13 @@ namespace Karpik.UIExtension
             OnLineRemoved(line);
         }
 
-        public virtual void AddNodeMenu<T>(string path, Action<T> onCreate) where T : ExtendedVisualElement, IGraphNode, new()
+        protected virtual void AddNodeMenu<T>(string path) where T : ExtendedVisualElement, IGraphNode, new()
         {
             AddContextMenu(path, (e) =>
             {
                 var node = new T();
                 node.Position = this.WorldToLocal(e.Position) + new Vector2(-node.Size.x / 2, node.Size.y / 2) + new Vector2(0, -100);
-                onCreate?.Invoke(node);
+                OnNodeMenuClicked(path, node);
                 AddNode(node);
                 Save();
             });
@@ -199,6 +199,11 @@ namespace Karpik.UIExtension
             {
                 dragManipulator.Enabled = IsEditMode;
             }
+        }
+
+        protected virtual void OnNodeMenuClicked(string path, IGraphNode node)
+        {
+            
         }
 
         protected virtual void OnNodeAdded<T>(T node) where T : VisualElement, IGraphNode
