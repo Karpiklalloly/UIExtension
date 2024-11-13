@@ -16,6 +16,7 @@ namespace Karpik.UIExtension
         public bool IsEditMode => EnableContextMenu;
         
         private Dictionary<string, IGraphNode> _idToNode = new();
+        private Dictionary<string, List<Action<IGraphNode>>> _pathToAction = new();
         private List<Line> _lines = new();
         private TopMenu _menu = new();
         
@@ -26,6 +27,15 @@ namespace Karpik.UIExtension
             hierarchy.Add(_menu);
             SetButtons();
             EnableContextMenu = false;
+        }
+
+        public void RegisterMenuOpened(string path, Action<IGraphNode> action)
+        {
+            if (!_pathToAction.ContainsKey(path))
+            {
+                _pathToAction.Add(path, new List<Action<IGraphNode>>());
+            }
+            _pathToAction[path].Add(action);
         }
 
         public virtual void AddNode<T>(T node) where T : ExtendedVisualElement, IGraphNode
@@ -165,13 +175,20 @@ namespace Karpik.UIExtension
             OnLineRemoved(line);
         }
 
-        protected virtual void AddNodeMenu<T>(string path) where T : ExtendedVisualElement, IGraphNode, new()
+        protected void AddNodeMenu<T>(string path) where T : ExtendedVisualElement, IGraphNode, new()
         {
             AddContextMenu(path, (e) =>
             {
                 var node = new T();
                 node.Position = this.WorldToLocal(e.Position) + new Vector2(-node.Size.x / 2, node.Size.y / 2) + new Vector2(0, -100);
-                OnNodeMenuClicked(path, node);
+                if (_pathToAction.TryGetValue(path, out var actions))
+                {
+                    for (int i = 0; i < actions.Count; i++)
+                    {
+                        actions[i](node);
+                    }
+                    
+                }
                 AddNode(node);
                 Save();
             });
@@ -199,11 +216,6 @@ namespace Karpik.UIExtension
             {
                 dragManipulator.Enabled = IsEditMode;
             }
-        }
-
-        protected virtual void OnNodeMenuClicked(string path, IGraphNode node)
-        {
-            
         }
 
         protected virtual void OnNodeAdded<T>(T node) where T : VisualElement, IGraphNode
