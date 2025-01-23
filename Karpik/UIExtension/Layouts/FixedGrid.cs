@@ -138,8 +138,8 @@ namespace Karpik.UIExtension
 
         private ScrollView _container = new ScrollView();
 
-        private VisualElement[] _containers = Array.Empty<VisualElement>();
-        private VisualElement[][] _grid = Array.Empty<VisualElement[]>();
+        private VisualElement[] _containers = { null };
+        private VisualElement[][] _grid = { new VisualElement[1] { null } };
         private Func<int, int, VisualElement> _makeItem;
 
         private float _sizeX;

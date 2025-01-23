@@ -1,11 +1,14 @@
 {
     "name": "com.karpik.uiextension",
-    "version": "0.6.3",
+    "version": "0.6.4",
     "displayName": "UIExtension",
     "description": "Add features to Unity UI Toolkit",
     "unity": "2023.2",
     "author": {
       "name": "Karpik",
       "url": "https://github.com/Karpiklalloly"
+    },
+    "dependencies": {
+      "com.unity.nuget.newtonsoft-json": "3.0.0"
     }
   }
