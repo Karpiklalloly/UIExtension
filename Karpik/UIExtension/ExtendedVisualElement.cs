@@ -40,6 +40,8 @@ namespace Karpik.UIExtension
         {
             VisualElement localParent;
             
+            element = OnBeforeChildAdded(element);
+            
             if (contentContainer == this)
             {
                 base.Add(element);
@@ -145,6 +147,16 @@ namespace Karpik.UIExtension
         protected virtual void OnAddTo()
         {
             
+        }
+
+        /// <summary>
+        /// Returns the element that will be added
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        protected virtual VisualElement OnBeforeChildAdded(VisualElement element)
+        {
+            return element;
         }
         
         protected virtual void OnChildAdded(VisualElement element)

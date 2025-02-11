@@ -1,5 +1,5 @@
 using System;
-using Karpik.UIExtension.Load;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
@@ -7,21 +7,7 @@ namespace Karpik.UIExtension
     [UxmlElement]
     public partial class Grid : ExtendedVisualElement
     {
-        public override VisualElement contentContainer => _root.Q("Grid");
-
-        [UxmlAttribute]
-        public float Padding
-        {
-            get => _padding;
-            set
-            {
-                _padding = value;
-                foreach (var child in Children())
-                {
-                    ApplyPadding(child);
-                }
-            }
-        }
+        public override VisualElement contentContainer => this;
 
         [UxmlAttribute]
         public float Margin
@@ -32,11 +18,12 @@ namespace Karpik.UIExtension
                 _margin = value;
                 foreach (var child in Children())
                 {
-                    ApplyMargin(child);
+                    ApplyModification(child);
                 }
             }
         }
 
+        [UxmlAttribute][Min(1)]
         public float LineHeight
         {
             get => _lineHeight;
@@ -45,12 +32,16 @@ namespace Karpik.UIExtension
                 _lineHeight = value;
                 foreach (var child in Children())
                 {
-                    ApplyHeight(child);
+                    ApplyModification(child);
                 }
             }
         }
 
-        [UxmlAttribute("CountPerLine")]
+        /// <summary>
+        /// There may be bug with non 2^x count 
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        [UxmlAttribute][Min(1)]
         public int CountPerLine
         {
             get => _countPerLine;
@@ -62,22 +53,30 @@ namespace Karpik.UIExtension
 
                 foreach (var child in Children())
                 {
-                    ApplyFlex(child);
+                    ApplyModification(child);
                 }
             }
         }
         
         private float _margin = 0;
-        private float _padding = 0;
         private float _lineHeight = 128;
         private int _countPerLine = 1;
-        
-        private VisualElement _root = new VisualElement();
 
         public Grid()
         {
-            _root.ToGrid();
-            hierarchy.Add(_root);
+            if (!ClassListContains(Selectors.Grid))
+            {
+                AddToClassList(Selectors.Grid);
+            }
+            Init();
+        }
+        
+        private void Init()
+        {
+            foreach (var child in Children())
+            {
+                ApplyFlex(child);
+            }
         }
 
         protected override void OnChildAdded(VisualElement child)
@@ -89,19 +88,15 @@ namespace Karpik.UIExtension
         private void ApplyModification(VisualElement element)
         {
             ApplyFlex(element);
-            ApplyPadding(element);
             ApplyMargin(element);
             ApplyHeight(element);
         }
 
         private void ApplyFlex(VisualElement element)
         {
-            element.style.flexBasis = new StyleLength(new Length(100f / _countPerLine, LengthUnit.Percent));
-        }
-
-        private void ApplyPadding(VisualElement element)
-        {
-            element.style.Padding(_padding / 2);
+            var width = resolvedStyle.width;
+            var efficientWidth = width - _countPerLine * _margin;
+            element.style.flexBasis = new StyleLength(new Length(efficientWidth / _countPerLine, LengthUnit.Pixel));
         }
 
         private void ApplyMargin(VisualElement element)

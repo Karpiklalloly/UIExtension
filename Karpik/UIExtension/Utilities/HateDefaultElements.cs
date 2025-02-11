@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,39 +7,25 @@ namespace Karpik.UIExtension
 {
     public static class HateDefaultElements
     {
-        public static void ForceUpdate(this ScrollView scroll)
+        private static MethodInfo _incrementVersion =
+            typeof(VisualElement).GetMethod("IncrementVersion", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static PropertyInfo _pseudoState =
+            typeof(VisualElement).GetProperty("pseudoStates", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        public static void ForceUpdate(this VisualElement element)
         {
-            if (scroll.childCount > 0)
+            element.style.visibility = Visibility.Hidden;
+            element.schedule.Execute(() =>
             {
-                var child = scroll.Children().First();
-                child.schedule.Execute(() =>
-                {
-                    var fakeOldRect = new Rect(child.layout.position + Vector2.one, child.layout.size + Vector2.one);
-                    var fakeNewRect = child.layout;
-
-                    using var evt = GeometryChangedEvent.GetPooled(fakeOldRect, fakeNewRect);
-                    evt.target = child.contentContainer;
-                    child.contentContainer.SendEvent(evt);
-                });
-            }
-
-            var v = scroll.verticalScroller.value;
-            var h = scroll.horizontalScroller.value;
-            scroll.schedule.Execute(() =>
-            {
-                var fakeOldRect = new Rect(scroll.layout.position + Vector2.one, scroll.layout.size + Vector2.one);
-                var fakeNewRect = scroll.layout;
-
-                using var evt = GeometryChangedEvent.GetPooled(fakeOldRect, fakeNewRect);
-                evt.target = scroll.contentContainer;
-                scroll.contentContainer.SendEvent(evt);
-            });
+                var fakeOldRect = new Rect(element.layout.position + Vector2.one, element.layout.size + Vector2.one);
+                var fakeNewRect = element.layout;
+                element.style.visibility = Visibility.Visible;
             
-            scroll.schedule.Execute(() =>
-            {
-                scroll.verticalScroller.value = v > scroll.verticalScroller.highValue ? scroll.verticalScroller.highValue : v;
-                scroll.horizontalScroller.value = h > scroll.horizontalScroller.highValue ? scroll.horizontalScroller.highValue : h;
-            }).StartingIn(1);
+                using var evt = GeometryChangedEvent.GetPooled(fakeOldRect, fakeNewRect);
+                evt.target = element.contentContainer;
+                element.contentContainer.SendEvent(evt);
+            });
         }
     }
 }

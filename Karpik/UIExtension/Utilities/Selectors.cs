@@ -6,13 +6,20 @@ namespace Karpik.UIExtension
     public static class Selectors
     {
         public static string Grid => "grid";
+        public static string FlexGrid => "grid-flex";
         public static string HorizontalContainer => "horizontal-container";
         public static string VerticalContainer => "vertical-container";
         public static string XBar => "x-bar";
         public static string FloatWindow => "float-window";
+        public static string Stack => "stack";
+        public static string Tooltip => "tooltip";
+        public static string TooltipTitle => "tooltip-title";
+        public static string TooltipDescription => "tooltip-description";
 
         public static string ContainerElement => "col";
         public static string XBarElement => "x-bar-item";
+        public static string GridItem => "grid-element";
+        public static string StackElement => "stack-element";
 
         public static string Center => "center";
         public static string HorizontalCenter => "horizontal-center";
@@ -23,6 +30,11 @@ namespace Karpik.UIExtension
         {
             element.styleSheets.Add(StyleSheets.Containers);
             element.AddToClassList(Grid);
+        }
+
+        public static void ToGridElement(this VisualElement element)
+        {
+            element.styleSheets.Add(StyleSheets.ContainerItems);
         }
 
         public static void ToSideBar(this VisualElement element,

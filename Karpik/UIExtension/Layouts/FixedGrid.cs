@@ -188,7 +188,10 @@ namespace Karpik.UIExtension
             if (_rows > 0 && _columns > 0)
             {
                 Display();
+                this.ForceUpdate();
                 _container.ForceUpdate();
+                _container.horizontalScroller.ForceUpdate();
+                _container.verticalScroller.ForceUpdate();
             }
         }
 

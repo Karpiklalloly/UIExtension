@@ -3,14 +3,17 @@ using UnityEngine.UIElements;
 
 namespace Karpik.UIExtension
 {
-    public class TooltipElement : ExtendedVisualElement
+    [UxmlElement]
+    public partial class TooltipElement : ExtendedVisualElement
     {
+        [UxmlAttribute]
         public string Title
         {
             get => _title.text;
             set => _title.text = value;
         }
 
+        [UxmlAttribute]
         public string Description
         {
             get => _description.text;
@@ -80,29 +83,30 @@ namespace Karpik.UIExtension
             hierarchy.Add(_title);
             hierarchy.Add(_description);
 
-            style.opacity = new StyleFloat(0.75f);
-            style.position = new StyleEnum<Position>(Position.Absolute);
-            style.justifyContent = new StyleEnum<Justify>(Justify.FlexStart);
-            style.alignContent = new StyleEnum<Align>(Align.Stretch);
+            if (!ClassListContains(Selectors.Tooltip))
+            {
+                AddToClassList(Selectors.Tooltip);
+            }
+
+            if (!_title.ClassListContains(Selectors.TooltipTitle))
+            {
+                _title.AddToClassList(Selectors.TooltipTitle);
+            }
             
-            MinWidth = 60;
-            MaxWidth = 300;
-            TitleColor = Color.white;
-            DescriptionColor = Color.white;
-            BackgroundColor = Color.black;
-            BorderColor = Color.yellow;
-            BorderWidth = 2;
-            BorderRadius = 5;
+            if (!_description.ClassListContains(Selectors.TooltipDescription))
+            {
+                _description.AddToClassList(Selectors.TooltipDescription);
+            }
         }
 
         public void Show()
         {
-            style.visibility = new StyleEnum<Visibility>(Visibility.Visible);
+            style.visibility = Visibility.Visible;
         }
 
         public void Hide()
         {
-            style.visibility = new StyleEnum<Visibility>(Visibility.Hidden);
+            style.visibility = Visibility.Hidden;
         }
     }
 }

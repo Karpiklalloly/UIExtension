@@ -7,7 +7,7 @@ namespace Karpik.UIExtension
 {
     public class TooltipManipulator : PointerManipulator
     {
-        private static TooltipElement _tooltip = new();
+        
 
         public Mode FollowMode
         {
@@ -23,20 +23,22 @@ namespace Karpik.UIExtension
         private VisualElement _container;
         private Mode _followMode;
 
+        private TooltipElement _tooltip;
+        private Func<VisualElement> _getContainer;
         private Func<string> _getTitle;
         private Func<string> _getDescription;
-        private Func<VisualElement> _tooltipContainer;
 
         public TooltipManipulator(
+            Func<VisualElement> getContainer,
             Func<string> getTitle,
             Func<string> getDescription,
-            Func<VisualElement> tooltipContainer,
             Mode mode = Mode.FollowCursor)
         {
+            _getContainer = getContainer;
             _getTitle = getTitle;
             _getDescription = getDescription;
-            _tooltipContainer = tooltipContainer;
             _followMode = mode;
+            _tooltip = new TooltipElement();
         }
         
         protected override void RegisterCallbacksOnTarget()
@@ -57,16 +59,24 @@ namespace Karpik.UIExtension
         {
             if (_container != null)
             {
-                SetPosition(e);
+                SetPosition(e.position);
             }
         }
 
         private void OnPointerEnter(PointerEnterEvent e)
         {
-            _container = _tooltipContainer?.Invoke();
+            if (_getContainer != null)
+            {
+                _container = _getContainer?.Invoke();
+            }
+
+            if (_container == null)
+            {
+                _container = target.panel.visualTree.Children().Last();
+            }
+            
             _tooltip.Title = _getTitle?.Invoke();
             _tooltip.Description = _getDescription?.Invoke();
-            target.CapturePointer(e.pointerId);
             _tooltip.Show();
             if (_container.hierarchy.Children().Contains(_tooltip)) return;
             
@@ -75,19 +85,10 @@ namespace Karpik.UIExtension
 
         private void OnPointerLeave(PointerLeaveEvent e)
         {
-            if (target.HasPointerCapture(e.pointerId))
-            {
-                target.ReleasePointer(e.pointerId);
-            }
-            
             _tooltip.Hide();
-            
-            if (!_container.Children().Contains(_tooltip)) return;
-            
-            _container.hierarchy.Remove(_tooltip);
         }
 
-        private void SetPosition(PointerMoveEvent e)
+        private void SetPosition(Vector2 worldPosition)
         {
             Vector2 offset = AdditionalOffset?.Invoke() ?? Vector2.zero;
             
@@ -95,7 +96,7 @@ namespace Karpik.UIExtension
             {
                 case Mode.FollowCursor:
                     _tooltip.transform.position =
-                        _container.WorldToLocal(e.position) + Vector2.one + new Vector2(10, 10) + offset;
+                        _container.WorldToLocal(worldPosition) + Vector2.one + new Vector2(10, 10) + offset;
                     ToContainerBounds();
                     break;
                 case Mode.Centralized:
@@ -111,7 +112,7 @@ namespace Karpik.UIExtension
 
         private void ToContainerBounds()
         {
-            var container = _tooltipContainer?.Invoke();
+            var container = target.panel.visualTree;
             if (container.FullyContains(_tooltip))
             {
                 return;
