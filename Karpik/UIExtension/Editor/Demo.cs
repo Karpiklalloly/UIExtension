@@ -36,6 +36,7 @@ public class Demo : EditorWindow
         AddStack();
         AddFlexGrid();
         AddDnD();
+        AddGraph();
     }
 
     private Tab AddTab(string name)
@@ -351,6 +352,16 @@ public class Demo : EditorWindow
         grid.AutoUpdate = was;
         grid.UpdateLayout();
     }
+
+    private void AddGraph()
+    {
+        var tab = AddTab("Graph");
+        
+        Graph graph = new DemoGraph();
+        graph.style.minWidth = 500;
+        graph.style.minHeight = 500;
+        tab.Add(graph);
+    }
     
     private SliderInt AddSlider(VisualElement parent, string label, EventCallback<ChangeEvent<int>> action, int value, int maxValue = 16)
     {
@@ -376,5 +387,14 @@ public class Demo : EditorWindow
         parent.AddChild(slider);
 
         return slider;
+    }
+    
+    public class DemoGraph : Graph
+    {
+        public DemoGraph()
+        {
+            AddNodeMenu<GraphNode>("New Node");
+            AddTopMenuButton("Demo", () => Debug.Log("Demo"), false);
+        }
     }
 }

@@ -194,17 +194,17 @@ namespace Karpik.UIExtension
             });
         }
 
+        protected void AddTopMenuButton(string text, Action onClick, bool toggle = false)
+        {
+            _menu.AddButton(text, onClick, toggle);
+        }
+
         public virtual void Save()
         {
             
         }
 
         public virtual void Load()
-        {
-            
-        }
-
-        protected virtual void AddButtons(TopMenu menu)
         {
             
         }
@@ -240,9 +240,7 @@ namespace Karpik.UIExtension
         
         private void SetButtons()
         {
-            _menu.AddButton("Edit mode", EditClicked, true);
-            
-            AddButtons(_menu);
+            AddTopMenuButton("Edit mode", EditClicked, true);
         }
     }
 }
